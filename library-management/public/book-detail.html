@@ -1,0 +1,884 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Chi Tiết Cuốn Sách - Hệ Thống Thư Viện</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+  <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+  <link rel="stylesheet" href="css/style.css">
+</head>
+<body class="bg-slate-50 text-slate-800 min-h-screen flex flex-col justify-between">
+
+  <!-- Header -->
+  <header class="bg-white/90 backdrop-blur-md border-b border-slate-200 sticky top-0 z-30">
+    <div class="max-w-7xl mx-auto px-6 h-16 flex items-center justify-between">
+      <a href="index.html" class="flex items-center gap-3">
+        <div class="w-10 h-10 rounded-xl bg-gradient-to-tr from-indigo-600 to-blue-500 flex items-center justify-center text-white shadow-md shadow-indigo-100">
+          <i class="fa-solid fa-book-bookmark text-lg"></i>
+        </div>
+        <div>
+          <span class="font-bold text-slate-800 text-lg leading-tight block">LibMaster</span>
+          <span class="text-[11px] text-slate-400 font-medium">Chi Tiết Tác Phẩm</span>
+        </div>
+      </a>
+
+      <div id="authNavArea"></div>
+    </div>
+  </header>
+
+  <!-- Main Content -->
+  <main class="max-w-5xl mx-auto px-6 py-10 w-full flex-1">
+    
+    <!-- Breadcrumb -->
+    <div class="flex items-center gap-2 text-xs text-slate-400 mb-6">
+      <a href="index.html" class="hover:text-indigo-600 transition">Trang Chủ</a>
+      <i class="fa-solid fa-chevron-right text-[10px]"></i>
+      <span class="text-slate-600 font-medium">Chi Tiết Sách</span>
+      <i class="fa-solid fa-chevron-right text-[10px]"></i>
+      <span id="breadcrumbTitle" class="text-indigo-600 font-semibold truncate max-w-xs">Đang tải...</span>
+    </div>
+
+    <!-- Book Detail Container -->
+    <div id="detailContainer" class="glass-panel rounded-3xl p-6 sm:p-8 border border-slate-200/80 shadow-md">
+      <div class="py-16 text-center text-slate-400">
+        <i class="fa-solid fa-spinner fa-spin text-3xl mb-3 text-indigo-600"></i>
+        <p class="text-xs">Đang nạp dữ liệu cuốn sách từ hệ thống...</p>
+      </div>
+    </div>
+
+    <!-- ==================== KHỐI ĐÁNH GIÁ & NHẬN XÉT TỪ ĐỘC GIẢ ==================== -->
+    <div id="reviewsSection" class="mt-8 glass-panel rounded-3xl p-6 sm:p-8 border border-slate-200/80 shadow-md space-y-6">
+      <div class="flex flex-col sm:flex-row sm:items-center justify-between pb-4 border-b border-slate-200/80 gap-3">
+        <div>
+          <h3 class="text-xl font-extrabold text-slate-800 flex items-center gap-2">
+            <i class="fa-solid fa-star text-amber-400"></i>
+            <span>Đánh Giá & Nhận Xét Từ Độc Giả</span>
+          </h3>
+          <p class="text-xs text-slate-500 mt-0.5">Cảm nhận và chia sẻ thực tế từ các độc giả đã đọc tác phẩm này</p>
+        </div>
+        <div id="reviewSummaryBadge" class="flex items-center gap-2 bg-amber-50 border border-amber-200 px-3.5 py-1.5 rounded-2xl w-fit">
+          <span class="text-lg font-black text-amber-600" id="headerAvgRating">--</span>
+          <span class="text-xs text-amber-700 font-semibold" id="headerReviewCount">(0 đánh giá)</span>
+        </div>
+      </div>
+
+      <!-- Form Viết Đánh Giá (Hiển thị nếu đã đăng nhập / Thông báo nếu chưa) -->
+      <div id="writeReviewCard" class="bg-slate-50/80 rounded-2xl p-4 sm:p-5 border border-slate-200/80">
+        <!-- Render động qua JS: Form hoặc Nút đăng nhập -->
+      </div>
+
+      <!-- Danh Sách Các Đánh Giá Của Độc Giả -->
+      <div class="space-y-3.5">
+        <h4 class="text-xs font-bold uppercase tracking-wider text-slate-400 flex items-center gap-1.5">
+          <i class="fa-regular fa-comments"></i>
+          <span>Bình Luận Mới Nhất</span>
+        </h4>
+        <div id="reviewsListContainer" class="space-y-3">
+          <div class="py-6 text-center text-slate-400 text-xs">
+            <i class="fa-solid fa-spinner fa-spin text-indigo-500 mr-1.5"></i> Đang tải nhận xét...
+          </div>
+        </div>
+      </div>
+    </div>
+
+  </main>
+
+  <!-- ==================== MODAL XÁC NHẬN MƯỢN SÁCH NHỎ GỌN ==================== -->
+  <div id="compactBorrowModal" class="fixed inset-0 bg-slate-950/70 backdrop-blur-xs z-50 hidden items-center justify-center p-4">
+    <div class="bg-white rounded-3xl max-w-md w-full p-6 shadow-2xl border border-slate-100 animate-fade-in space-y-4">
+      
+      <!-- Header Modal -->
+      <div class="flex items-center justify-between border-b border-slate-100 pb-3">
+        <div class="flex items-center gap-2 text-indigo-700 font-bold text-base">
+          <i class="fa-solid fa-book-bookmark"></i>
+          <span>Xác Nhận Đăng Ký Mượn Sách</span>
+        </div>
+        <button id="closeBorrowModalBtn" class="text-slate-400 hover:text-slate-600 p-1.5 rounded-lg">
+          <i class="fa-solid fa-xmark text-lg"></i>
+        </button>
+      </div>
+
+      <!-- Tóm tắt sách & Ảnh bìa nhỏ -->
+      <div class="p-3 bg-slate-50 border border-slate-200/70 rounded-2xl flex items-center gap-3">
+        <img id="modalMiniCover" src="" class="w-14 h-20 object-cover rounded-xl shadow-xs border border-slate-200">
+        <div class="min-w-0 space-y-1">
+          <div id="modalAgeBadge"></div>
+          <h4 id="modalMiniTitle" class="font-bold text-slate-800 text-sm truncate">--</h4>
+          <p id="modalMiniAuthor" class="text-xs text-slate-500 truncate">--</p>
+          <div class="text-[11px] text-emerald-700 font-semibold" id="modalMiniStock">Còn: --</div>
+        </div>
+      </div>
+
+      <!-- Cảnh báo nếu không đủ tuổi -->
+      <div id="modalAgeWarning" class="hidden p-3 bg-rose-50 border border-rose-200 text-rose-700 rounded-xl text-xs space-y-1">
+        <div class="font-bold flex items-center gap-1.5">
+          <i class="fa-solid fa-ban"></i> Cảnh báo giới hạn độ tuổi 18+
+        </div>
+        <p>Bạn hiện chưa đủ 18 tuổi để mượn cuốn sách này theo quy định của thư viện.</p>
+      </div>
+
+      <!-- Form nhập thông tin nhận sách -->
+      <form id="compactBorrowForm" class="space-y-3">
+        <div>
+          <label class="block text-xs font-bold text-slate-700 mb-1">Họ Và Tên Người Nhận <span class="text-rose-500">*</span></label>
+          <input type="text" id="inputReceiverName" required placeholder="Họ và tên..."
+                 class="w-full px-3.5 py-2 text-xs bg-slate-50 border border-slate-200 rounded-xl focus:outline-none focus:border-indigo-600">
+        </div>
+
+        <div>
+          <label class="block text-xs font-bold text-slate-700 mb-1">Số Điện Thoại Nhận Sách <span class="text-rose-500">*</span></label>
+          <input type="tel" id="inputReceiverPhone" required placeholder="0912345678"
+                 class="w-full px-3.5 py-2 text-xs bg-slate-50 border border-slate-200 rounded-xl focus:outline-none focus:border-indigo-600">
+        </div>
+
+        <!-- Nhóm Bộ Chọn Địa Chỉ Nhận Sách Tự Động -->
+        <div class="space-y-1.5 pt-1">
+          <div class="flex items-center justify-between">
+            <label class="block text-xs font-bold text-slate-700 flex items-center gap-1.5">
+              <i class="fa-solid fa-location-dot text-indigo-500"></i>
+              <span>Địa Chỉ Nhận / Giao Sách <span class="text-rose-500">*</span></span>
+            </label>
+            <button type="button" id="btnPickupAtLibrary" class="text-[11px] font-semibold text-indigo-600 hover:text-indigo-800 transition flex items-center gap-1">
+              <i class="fa-solid fa-building-columns text-[10px]"></i> Nhận tại quầy
+            </button>
+          </div>
+
+          <!-- Hàng 1 (2 cột): Tỉnh / Thành phố & Quận / Huyện -->
+          <div class="grid grid-cols-1 sm:grid-cols-2 gap-2">
+            <div>
+              <label class="block text-[10px] font-semibold text-slate-400 mb-0.5">Tỉnh / Thành phố</label>
+              <select id="borrowProvince"
+                      class="w-full bg-slate-50 border border-slate-200 rounded-xl px-3 py-2 text-xs focus:outline-none focus:ring-2 focus:ring-indigo-500 font-medium text-slate-700">
+                <option value="">-- Chọn Tỉnh / Thành --</option>
+              </select>
+            </div>
+            <div>
+              <label class="block text-[10px] font-semibold text-slate-400 mb-0.5">Quận / Huyện</label>
+              <select id="borrowDistrict" disabled
+                      class="w-full bg-slate-50 border border-slate-200 rounded-xl px-3 py-2 text-xs focus:outline-none focus:ring-2 focus:ring-indigo-500 font-medium text-slate-700 disabled:bg-slate-100 disabled:text-slate-400 disabled:cursor-not-allowed">
+                <option value="">-- Chọn Quận / Huyện --</option>
+              </select>
+            </div>
+          </div>
+
+          <!-- Hàng 2 (2 cột): Phường / Xã & Số nhà, tên đường -->
+          <div class="grid grid-cols-1 sm:grid-cols-2 gap-2">
+            <div>
+              <label class="block text-[10px] font-semibold text-slate-400 mb-0.5">Phường / Xã</label>
+              <select id="borrowWard" disabled
+                      class="w-full bg-slate-50 border border-slate-200 rounded-xl px-3 py-2 text-xs focus:outline-none focus:ring-2 focus:ring-indigo-500 font-medium text-slate-700 disabled:bg-slate-100 disabled:text-slate-400 disabled:cursor-not-allowed">
+                <option value="">-- Chọn Phường / Xã --</option>
+              </select>
+            </div>
+            <div>
+              <label class="block text-[10px] font-semibold text-slate-400 mb-0.5">Số nhà, tên đường</label>
+              <input type="text" id="borrowStreet" placeholder="VD: Số 12 ngõ 8..."
+                     class="w-full bg-slate-50 border border-slate-200 rounded-xl px-3 py-2 text-xs focus:outline-none focus:ring-2 focus:ring-indigo-500 text-slate-800">
+            </div>
+          </div>
+
+          <!-- Input ẩn lưu trữ chuỗi địa chỉ ghép đầy đủ -->
+          <input type="hidden" id="inputDeliveryAddress" required>
+          <div id="borrowAddressPreview" class="text-[11px] text-slate-600 bg-slate-100/70 rounded-lg p-2 border border-slate-200/80 hidden"></div>
+        </div>
+
+        <div>
+          <label class="block text-xs font-bold text-slate-700 mb-1">Thời Hạn Mượn</label>
+          <select id="inputBorrowDays" class="w-full px-3.5 py-2 text-xs bg-slate-50 border border-slate-200 rounded-xl focus:outline-none focus:border-indigo-600 font-semibold text-slate-700">
+            <option value="7">7 ngày</option>
+            <option value="14" selected>14 ngày (Tiêu chuẩn)</option>
+            <option value="21">21 ngày (Nghiên cứu)</option>
+          </select>
+        </div>
+
+        <div class="pt-2 flex justify-end gap-2">
+          <button type="button" id="cancelBorrowModalBtn" class="px-4 py-2 text-xs font-semibold text-slate-600 bg-slate-100 rounded-xl hover:bg-slate-200 transition">
+            Hủy Bỏ
+          </button>
+          <button type="submit" id="btnSubmitCompactBorrow" class="px-5 py-2 text-xs font-bold text-white bg-indigo-600 hover:bg-indigo-700 rounded-xl shadow-xs transition flex items-center gap-1.5">
+            <i class="fa-solid fa-check"></i> Xác Nhận Mượn
+          </button>
+        </div>
+      </form>
+
+    </div>
+  </div>
+
+  <!-- Footer -->
+  <footer class="bg-white border-t border-slate-200 py-6 px-6 text-center text-xs text-slate-400">
+    Hệ thống Quản lý Thư viện LibMaster &bull; Giới hạn tối đa 3 quyển sách &bull; Kiểm soát độ tuổi 18+
+  </footer>
+
+  <script src="js/main.js"></script>
+  <script>
+    document.addEventListener('DOMContentLoaded', async () => {
+      const urlParams = new URLSearchParams(window.location.search);
+      const bookId = urlParams.get('id');
+      const detailContainer = document.getElementById('detailContainer');
+      const breadcrumbTitle = document.getElementById('breadcrumbTitle');
+
+      // Modal elements
+      const compactBorrowModal = document.getElementById('compactBorrowModal');
+      const closeBorrowModalBtn = document.getElementById('closeBorrowModalBtn');
+      const cancelBorrowModalBtn = document.getElementById('cancelBorrowModalBtn');
+      const compactBorrowForm = document.getElementById('compactBorrowForm');
+      const modalMiniCover = document.getElementById('modalMiniCover');
+      const modalMiniTitle = document.getElementById('modalMiniTitle');
+      const modalMiniAuthor = document.getElementById('modalMiniAuthor');
+      const modalMiniStock = document.getElementById('modalMiniStock');
+      const modalAgeBadge = document.getElementById('modalAgeBadge');
+      const modalAgeWarning = document.getElementById('modalAgeWarning');
+      const inputReceiverName = document.getElementById('inputReceiverName');
+      const inputReceiverPhone = document.getElementById('inputReceiverPhone');
+      const inputDeliveryAddress = document.getElementById('inputDeliveryAddress');
+      const inputBorrowDays = document.getElementById('inputBorrowDays');
+      const btnSubmitCompactBorrow = document.getElementById('btnSubmitCompactBorrow');
+
+      let currentBook = null;
+
+      if (!bookId) {
+        detailContainer.innerHTML = `
+          <div class="text-center py-12 text-rose-500">
+            <i class="fa-solid fa-circle-exclamation text-4xl mb-3"></i>
+            <h3 class="text-lg font-bold">Không tìm thấy mã sách hợp lệ!</h3>
+            <a href="index.html" class="mt-4 inline-block px-4 py-2 bg-indigo-600 text-white rounded-xl text-xs font-bold">Về Trang Chủ</a>
+          </div>
+        `;
+        return;
+      }
+
+      // Tải chi tiết sách
+      const res = await apiFetch(`/api/books/${bookId}`);
+      if (!res.ok || !res.data.success || !res.data.book) {
+        detailContainer.innerHTML = `
+          <div class="text-center py-12 text-slate-500">
+            <i class="fa-solid fa-box-open text-4xl mb-3 text-slate-300"></i>
+            <h3 class="text-lg font-bold">Cuốn sách này không tồn tại hoặc đã bị xóa.</h3>
+            <a href="index.html" class="mt-4 inline-block px-4 py-2 bg-indigo-600 text-white rounded-xl text-xs font-bold">Quay Lại Danh Mục</a>
+          </div>
+        `;
+        return;
+      }
+
+      currentBook = res.data.book;
+      const book = currentBook;
+      breadcrumbTitle.textContent = book.title;
+      document.title = `${book.title} - LibMaster`;
+
+      const fallbackImg = 'https://images.unsplash.com/photo-1544947950-fa07a98d237f?auto=format&fit=crop&q=80&w=600';
+      const isAvailable = book.availableQuantity > 0;
+      const is18Plus = book.ageRestriction === '18+';
+      const isKids = book.ageRestriction === 'kids';
+
+      const currentUser = Auth.getUser();
+      const currentUserAge = typeof window.getCurrentUserAge === 'function' ? window.getCurrentUserAge() : (currentUser?.age !== undefined ? currentUser.age : null);
+      const isUnderageForThisBook = is18Plus && currentUserAge !== null && currentUserAge < 18;
+
+      let userAgeNotice = '';
+      if (currentUser && currentUserAge !== null) {
+        const canBorrowAge = !is18Plus || currentUserAge >= 18;
+        if (canBorrowAge) {
+          userAgeNotice = `
+            <div class="p-3 rounded-xl bg-emerald-50 text-emerald-800 border border-emerald-200 text-xs flex items-center justify-between">
+              <span>Độc giả: <strong>${currentUser.fullName}</strong> (${currentUserAge} tuổi)</span>
+              <span class="font-bold text-emerald-700"><i class="fa-solid fa-circle-check mr-1"></i> Đủ điều kiện độ tuổi</span>
+            </div>
+          `;
+        } else {
+          userAgeNotice = `
+            <div class="p-3.5 rounded-2xl bg-rose-50 text-rose-800 border border-rose-200 text-xs flex items-center justify-between shadow-2xs">
+              <div class="flex items-center gap-2.5">
+                <div class="w-8 h-8 rounded-xl bg-rose-100 text-rose-600 flex items-center justify-center font-bold text-sm shrink-0">
+                  <i class="fa-solid fa-lock"></i>
+                </div>
+                <div>
+                  <span class="font-bold text-slate-800">${currentUser.fullName}</span>
+                  <span class="text-rose-600 font-semibold ml-1">(${currentUserAge} tuổi)</span>
+                  <div class="text-[11px] text-rose-600 font-medium">Chưa đủ 18 tuổi để mượn cuốn sách này theo quy chế thư viện</div>
+                </div>
+              </div>
+              <span class="font-extrabold text-rose-700 bg-white px-2.5 py-1 rounded-lg border border-rose-200 text-[11px] shrink-0">
+                <i class="fa-solid fa-ban mr-1"></i> Giới hạn 18+
+              </span>
+            </div>
+          `;
+        }
+      }
+
+      let ageBadgeHtml = '';
+      if (is18Plus) {
+        ageBadgeHtml = isUnderageForThisBook 
+          ? `<span class="badge bg-rose-100 text-rose-700 border border-rose-300 font-extrabold text-xs px-3 py-1"><i class="fa-solid fa-lock mr-1"></i>18+ (Chưa đủ tuổi)</span>`
+          : `<span class="badge bg-rose-100 text-rose-700 border border-rose-300 font-extrabold text-xs px-3 py-1"><i class="fa-solid fa-triangle-exclamation mr-1"></i>Giới Hạn 18+ (Người Lớn)</span>`;
+      } else if (isKids) {
+        ageBadgeHtml = `<span class="badge bg-amber-100 text-amber-800 border border-amber-300 font-bold text-xs px-3 py-1"><i class="fa-solid fa-child mr-1"></i>Sách Thiếu Nhi (Kids)</span>`;
+      } else {
+        ageBadgeHtml = `<span class="badge bg-indigo-50 text-indigo-700 border border-indigo-200 font-bold text-xs px-3 py-1"><i class="fa-solid fa-book-open mr-1"></i>Dành Cho Mọi Lứa Tuổi</span>`;
+      }
+
+      // Nút hành động mượn sách hoặc đăng ký xếp hàng
+      let borrowButtonHtml = '';
+      if (isUnderageForThisBook) {
+        borrowButtonHtml = `
+          <button id="btnOpenBorrowModal" 
+                  class="px-6 py-3 text-sm font-bold rounded-xl shadow-xs transition flex items-center gap-2 bg-rose-50 hover:bg-rose-100 text-rose-700 border border-rose-200 cursor-pointer">
+            <i class="fa-solid fa-lock text-rose-500"></i> Không Đủ Điều Kiện Mượn (Giới hạn 18+)
+          </button>
+        `;
+      } else if (!isAvailable) {
+        const nextQueuePos = (book.waitlistCount || 0) + 1;
+        borrowButtonHtml = `
+          <button id="btnJoinWaitlist" 
+                  onclick="joinWaitlistFromDetail(${book.id}, '${book.title.replace(/'/g, "\\'")}', ${nextQueuePos})"
+                  class="px-6 py-3 text-sm font-bold text-white bg-amber-500 hover:bg-amber-600 shadow-md shadow-amber-200 rounded-xl transition flex items-center gap-2 cursor-pointer">
+            <i class="fa-solid fa-clock-rotate-left"></i> Đăng Ký Xếp Hàng (Vị trí #${nextQueuePos})
+          </button>
+        `;
+      } else {
+        borrowButtonHtml = `
+          <button id="btnOpenBorrowModal" 
+                  class="px-6 py-3 text-sm font-bold text-white bg-indigo-600 hover:bg-indigo-700 shadow-md shadow-indigo-200 rounded-xl transition flex items-center gap-2 cursor-pointer">
+            <i class="fa-solid fa-book"></i> Mượn Sách Ngay
+          </button>
+        `;
+      }
+
+      detailContainer.innerHTML = `
+        <div class="grid grid-cols-1 md:grid-cols-3 gap-8 items-start">
+          
+          <div class="md:col-span-1">
+            <div class="rounded-2xl overflow-hidden shadow-lg border border-slate-200 bg-slate-100 max-w-xs mx-auto relative aspect-[2/3]">
+              <img src="${book.coverImage || fallbackImg}" alt="${book.title}"
+                   onerror="this.src='${fallbackImg}'"
+                   class="w-full h-full object-cover">
+              
+              <div class="absolute top-3 left-3">
+                ${ageBadgeHtml}
+              </div>
+            </div>
+
+            <div class="mt-4 p-4 rounded-2xl ${isAvailable ? 'bg-emerald-50/70 border border-emerald-200' : 'bg-amber-50/80 border border-amber-300'} text-center space-y-1.5">
+              <div class="text-xs font-bold uppercase tracking-wider ${isAvailable ? 'text-emerald-700' : 'text-amber-800'}">
+                ${isAvailable ? '<i class="fa-solid fa-circle-check mr-1"></i> Sách Sẵn Sàng Cho Mượn' : '<i class="fa-solid fa-clock-rotate-left mr-1"></i> Sách Đang Hết - Có Hàng Chờ'}
+              </div>
+              <div class="text-sm font-extrabold ${isAvailable ? 'text-emerald-800' : 'text-amber-900'}">
+                ${isAvailable ? `Còn lại: ${book.availableQuantity} / ${book.quantity} cuốn` : `Đang được mượn toàn bộ (${book.quantity}/${book.quantity} cuốn)`}
+              </div>
+              ${!isAvailable && book.earliestDueDate ? `
+                <div class="text-xs font-semibold text-amber-700 pt-1 border-t border-amber-200/60 flex items-center justify-center gap-1">
+                  <i class="fa-regular fa-calendar-check"></i>
+                  <span>Dự kiến có sách vào: <strong>${formatDate(book.earliestDueDate)}</strong></span>
+                </div>
+              ` : ''}
+              ${!isAvailable ? `
+                <div class="text-[11px] text-slate-500">
+                  Hiện có <strong>${book.waitlistCount || 0} độc giả</strong> đang xếp hàng chờ.
+                </div>
+              ` : ''}
+            </div>
+          </div>
+
+          <div class="md:col-span-2 space-y-5">
+            <div>
+              <div class="flex flex-wrap items-center gap-2 mb-2">
+                <span class="text-xs font-bold px-3 py-1 bg-slate-100 text-slate-700 rounded-full">
+                  Thể loại: ${book.category}
+                </span>
+                <span class="text-xs text-slate-400 font-mono">Mã sách: #${book.id}</span>
+              </div>
+              <h2 class="text-2xl sm:text-3xl font-extrabold text-slate-800 leading-snug">${book.title}</h2>
+              <p class="text-sm text-slate-600 font-medium mt-1">
+                <i class="fa-solid fa-feather-pointed text-indigo-500 mr-1.5"></i>Tác giả: <span class="font-bold text-slate-800">${book.author}</span>
+              </p>
+
+              <!-- Điểm Đánh Giá Sao & Số Lượt Nhận Xét -->
+              <div class="flex items-center gap-2 mt-2">
+                <div class="flex items-center text-amber-500 font-black text-sm bg-amber-50 border border-amber-200/70 px-2.5 py-1 rounded-xl">
+                  <span class="mr-1">⭐</span>
+                  <span id="detailRatingScore">${parseFloat(book.avgRating || 0).toFixed(1)}</span>
+                  <span class="text-[11px] text-slate-400 font-medium ml-1">/ 5.0</span>
+                </div>
+                <span class="text-xs text-slate-500 font-medium">
+                  (<strong id="detailRatingCount" class="text-slate-700">${book.reviewCount || 0}</strong> lượt đánh giá)
+                </span>
+              </div>
+            </div>
+
+            ${userAgeNotice}
+
+            <div class="space-y-2">
+              <h4 class="text-xs font-bold uppercase tracking-wider text-slate-400">Nội Dung Tóm Tắt</h4>
+              <p class="text-sm text-slate-600 leading-relaxed bg-slate-50 p-4 rounded-2xl border border-slate-100">
+                ${book.description || 'Chưa có thông tin mô tả chi tiết cho cuốn sách này.'}
+              </p>
+            </div>
+
+            <div class="p-4 rounded-2xl ${is18Plus ? 'bg-rose-50/60 border border-rose-200' : 'bg-amber-50/60 border border-amber-200'} text-xs text-slate-700 space-y-1.5">
+              <div class="font-bold flex items-center gap-1.5 ${is18Plus ? 'text-rose-800' : 'text-amber-800'}">
+                <i class="fa-solid fa-shield-halved"></i> Quy định mượn sách cần lưu ý:
+              </div>
+              <ul class="list-disc list-inside space-y-1 text-[11px] text-slate-600">
+                ${is18Plus ? '<li class="text-rose-700 font-semibold">Cuốn sách này <strong>chỉ dành cho người trên 18 tuổi</strong>.</li>' : ''}
+                <li>Mỗi độc giả được mượn <strong>tối đa 3 quyển sách</strong> cùng lúc.</li>
+                <li>Thời hạn mượn tiêu chuẩn là <strong>14 ngày</strong>. Phí trễ hạn: <strong>5.000 VNĐ / ngày</strong>.</li>
+              </ul>
+            </div>
+
+            <div class="pt-2 flex flex-wrap items-center gap-3">
+              ${borrowButtonHtml}
+
+              <a href="index.html" class="px-5 py-3 text-sm font-semibold text-slate-600 bg-slate-100 hover:bg-slate-200 rounded-xl transition">
+                Xem Danh Mục Sách
+              </a>
+            </div>
+
+          </div>
+
+        </div>
+      `;
+
+      // MỞ MODAL XÁC NHẬN MƯỢN SÁCH NHỎ GỌN
+      const btnOpenModal = document.getElementById('btnOpenBorrowModal');
+      if (btnOpenModal) {
+        btnOpenModal.addEventListener('click', () => {
+          if (!Auth.isLoggedIn()) {
+            Swal.fire({
+              title: 'Yêu Cầu Đăng Nhập',
+              text: 'Bạn cần đăng nhập tài khoản độc giả để đăng ký nhận mượn sách.',
+              icon: 'info',
+              showCancelButton: true,
+              confirmButtonColor: '#4f46e5',
+              cancelButtonColor: '#64748b',
+              confirmButtonText: 'Đăng Nhập Ngay',
+              cancelButtonText: 'Đóng'
+            }).then((result) => {
+              if (result.isConfirmed) window.location.href = 'login.html';
+            });
+            return;
+          }
+
+          // Kiểm tra giới hạn tuổi 18+: Chặn ngay lập tức và bật SweetAlert2 cảnh báo
+          if (isUnderageForThisBook) {
+            window.showAgeRestrictionWarning(book.title, currentUserAge);
+            return;
+          }
+
+          if (!isAvailable) {
+            Notify.error('Hết sách', 'Cuốn sách này hiện đã được mượn hết trong kho.');
+            return;
+          }
+
+          const user = Auth.getUser();
+
+          // Điền sẵn thông tin tóm tắt vào modal nhỏ gọn
+          modalMiniCover.src = book.coverImage || fallbackImg;
+          modalMiniTitle.textContent = book.title;
+          modalMiniAuthor.textContent = book.author;
+          modalMiniStock.textContent = `Kho sẵn sàng: ${book.availableQuantity} cuốn`;
+          modalAgeBadge.innerHTML = ageBadgeHtml;
+
+          // Khởi tạo bộ chọn địa chỉ cho Modal Mượn Sách
+          let borrowAddressSelector = null;
+          if (typeof initVietnamAddressSelector === 'function') {
+            borrowAddressSelector = initVietnamAddressSelector({
+              provinceSelectId: 'borrowProvince',
+              districtSelectId: 'borrowDistrict',
+              wardSelectId: 'borrowWard',
+              streetInputId: 'borrowStreet',
+              fullAddressInputId: 'inputDeliveryAddress',
+              onChange: (full) => {
+                const preview = document.getElementById('borrowAddressPreview');
+                if (preview) {
+                  if (full) {
+                    preview.innerHTML = `<i class="fa-solid fa-truck-fast text-indigo-600 mr-1"></i>Giao đến: <strong>${full}</strong>`;
+                    preview.classList.remove('hidden');
+                  } else {
+                    preview.classList.add('hidden');
+                  }
+                }
+              }
+            });
+          }
+
+          // Nút nhận sách trực tiếp tại quầy thư viện
+          const btnPickupAtLibrary = document.getElementById('btnPickupAtLibrary');
+          if (btnPickupAtLibrary) {
+            btnPickupAtLibrary.onclick = () => {
+              if (borrowAddressSelector) borrowAddressSelector.reset();
+              inputDeliveryAddress.value = 'Nhận trực tiếp tại quầy thư viện';
+              const preview = document.getElementById('borrowAddressPreview');
+              if (preview) {
+                preview.innerHTML = '<i class="fa-solid fa-building-columns text-indigo-600 mr-1"></i>Phương thức: <strong>Nhận trực tiếp tại quầy thư viện LibMaster</strong>';
+                preview.classList.remove('hidden');
+              }
+              Notify.toast('Đã chọn: Nhận tại quầy thư viện', 'info');
+            };
+          }
+
+          // Điền thông tin người nhận
+          inputReceiverName.value = user.fullName || '';
+          inputReceiverPhone.value = user.contact || '';
+          
+          if (user.address) {
+            inputDeliveryAddress.value = user.address;
+            const preview = document.getElementById('borrowAddressPreview');
+            if (preview) {
+              preview.innerHTML = `<i class="fa-solid fa-location-dot text-indigo-600 mr-1"></i>Địa chỉ đã lưu: <strong>${user.address}</strong>`;
+              preview.classList.remove('hidden');
+            }
+          } else {
+            inputDeliveryAddress.value = 'Nhận trực tiếp tại quầy thư viện';
+            const preview = document.getElementById('borrowAddressPreview');
+            if (preview) {
+              preview.innerHTML = '<i class="fa-solid fa-building-columns text-indigo-600 mr-1"></i>Mặc định: <strong>Nhận trực tiếp tại quầy thư viện</strong>';
+              preview.classList.remove('hidden');
+            }
+          }
+
+          // Kiểm tra độ tuổi 18+ trực tiếp trong modal
+          if (is18Plus && user.age !== undefined && user.age < 18) {
+            modalAgeWarning.classList.remove('hidden');
+            btnSubmitCompactBorrow.disabled = true;
+            btnSubmitCompactBorrow.className = 'px-5 py-2 text-xs font-bold text-white bg-slate-300 cursor-not-allowed rounded-xl';
+          } else {
+            modalAgeWarning.classList.add('hidden');
+            btnSubmitCompactBorrow.disabled = false;
+            btnSubmitCompactBorrow.className = 'px-5 py-2 text-xs font-bold text-white bg-indigo-600 hover:bg-indigo-700 rounded-xl shadow-xs transition flex items-center gap-1.5';
+          }
+
+          compactBorrowModal.classList.remove('hidden');
+          compactBorrowModal.classList.add('flex');
+        });
+      }
+
+      function closeModal() {
+        compactBorrowModal.classList.add('hidden');
+        compactBorrowModal.classList.remove('flex');
+      }
+
+      closeBorrowModalBtn.addEventListener('click', closeModal);
+      cancelBorrowModalBtn.addEventListener('click', closeModal);
+
+      // SUBMIT FORM XÁC NHẬN MƯỢN SÁCH
+      compactBorrowForm.addEventListener('submit', async (e) => {
+        e.preventDefault();
+
+        const receiverName = inputReceiverName.value.trim();
+        const receiverPhone = inputReceiverPhone.value.trim();
+        const deliveryAddress = inputDeliveryAddress.value.trim();
+        const borrowDays = parseInt(inputBorrowDays.value, 10) || 14;
+
+        btnSubmitCompactBorrow.disabled = true;
+        btnSubmitCompactBorrow.innerHTML = '<i class="fa-solid fa-spinner fa-spin"></i> Đang xử lý...';
+
+        const borrowRes = await apiFetch('/api/loans/borrow', {
+          method: 'POST',
+          body: JSON.stringify({
+            bookId: book.id,
+            receiverName,
+            receiverPhone,
+            deliveryAddress,
+            borrowDays
+          })
+        });
+
+        btnSubmitCompactBorrow.disabled = false;
+        btnSubmitCompactBorrow.innerHTML = '<i class="fa-solid fa-check"></i> Xác Nhận Mượn';
+
+        if (borrowRes.ok && borrowRes.data.success) {
+          closeModal();
+          Swal.fire({
+            html: `
+              <div class="text-center space-y-2.5 pt-1">
+                <div class="w-11 h-11 mx-auto rounded-2xl bg-emerald-50 text-emerald-600 flex items-center justify-center text-xl border border-emerald-100 shadow-xs">
+                  <i class="fa-solid fa-circle-check"></i>
+                </div>
+                <div>
+                  <h3 class="text-base font-bold text-slate-800">Mượn sách thành công!</h3>
+                  <div class="mt-2 p-2.5 bg-slate-50 border border-slate-200/80 rounded-xl text-xs text-slate-700">
+                    <p class="font-bold text-slate-800 line-clamp-1">${book.title}</p>
+                    <p class="text-[11px] text-indigo-700 font-semibold mt-0.5">Hạn trả: ${formatDate(borrowRes.data.dueDate)}</p>
+                  </div>
+                </div>
+              </div>
+            `,
+            showCancelButton: true,
+            confirmButtonText: 'Xem sách đang mượn',
+            cancelButtonText: 'Đóng',
+            buttonsStyling: false,
+            customClass: {
+              popup: 'w-[360px] sm:w-[380px] p-5 rounded-3xl border border-slate-100 shadow-2xl bg-white',
+              confirmButton: 'px-4 py-2 text-xs font-bold text-white bg-indigo-600 hover:bg-indigo-700 rounded-xl shadow-xs transition mx-1',
+              cancelButton: 'px-4 py-2 text-xs font-semibold text-slate-600 bg-slate-100 hover:bg-slate-200 rounded-xl transition mx-1',
+              actions: 'flex justify-center gap-2 mt-3 pt-3 border-t border-slate-100 w-full'
+            }
+          }).then((result) => {
+            if (result.isConfirmed) {
+              window.location.href = 'profile.html';
+            } else {
+              window.location.reload();
+            }
+          });
+        } else {
+          Notify.error('Không Thể Mượn Sách', borrowRes.data.message || 'Có lỗi xảy ra!');
+        }
+      });
+
+      // ========================================================
+      // TẢI VÀ XỬ LÝ ĐÁNH GIÁ & BÌNH LUẬN SÁCH (BOOK REVIEWS)
+      // ========================================================
+      let selectedStarRating = 5;
+
+      async function loadReviews(bId) {
+        const listContainer = document.getElementById('reviewsListContainer');
+        const writeCard = document.getElementById('writeReviewCard');
+        const headerAvg = document.getElementById('headerAvgRating');
+        const headerCount = document.getElementById('headerReviewCount');
+        const detailScore = document.getElementById('detailRatingScore');
+        const detailCount = document.getElementById('detailRatingCount');
+
+        const currentUser = Auth.getUser();
+
+        // 1. Render Card Viết Đánh Giá
+        if (currentUser) {
+          writeCard.innerHTML = `
+            <form id="submitReviewForm" class="space-y-3">
+              <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-2 pb-2 border-b border-slate-200/70">
+                <div class="flex items-center gap-2">
+                  <div class="w-8 h-8 rounded-full bg-indigo-600 text-white font-bold flex items-center justify-center text-xs">
+                    ${currentUser.fullName ? currentUser.fullName.charAt(0).toUpperCase() : 'U'}
+                  </div>
+                  <span class="text-xs font-bold text-slate-800">${currentUser.fullName}</span>
+                  <span class="text-[10px] text-slate-400">(Viết nhận xét của bạn)</span>
+                </div>
+
+                <!-- Chọn số sao (1 đến 5 sao) -->
+                <div class="flex items-center gap-1 text-base cursor-pointer" id="starPickerContainer">
+                  <span class="text-xs font-semibold text-slate-500 mr-1">Chấm điểm:</span>
+                  <button type="button" class="star-btn text-amber-400 hover:scale-110 transition p-0.5" data-star="1"><i class="fa-solid fa-star"></i></button>
+                  <button type="button" class="star-btn text-amber-400 hover:scale-110 transition p-0.5" data-star="2"><i class="fa-solid fa-star"></i></button>
+                  <button type="button" class="star-btn text-amber-400 hover:scale-110 transition p-0.5" data-star="3"><i class="fa-solid fa-star"></i></button>
+                  <button type="button" class="star-btn text-amber-400 hover:scale-110 transition p-0.5" data-star="4"><i class="fa-solid fa-star"></i></button>
+                  <button type="button" class="star-btn text-amber-400 hover:scale-110 transition p-0.5" data-star="5"><i class="fa-solid fa-star"></i></button>
+                  <span id="starRatingLabel" class="text-xs font-bold text-amber-600 ml-1.5">5/5 sao (Tuyệt vời)</span>
+                </div>
+              </div>
+
+              <div>
+                <textarea id="reviewCommentInput" rows="3" required placeholder="Hãy chia sẻ cảm nhận, điều bạn tâm đắc hoặc đánh giá về cuốn sách này..."
+                          class="w-full p-3 text-xs bg-white border border-slate-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-indigo-500/20 focus:border-indigo-600 text-slate-800"></textarea>
+              </div>
+
+              <div class="flex justify-end">
+                <button type="submit" id="btnSubmitReview"
+                        class="px-5 py-2 text-xs font-bold text-white bg-indigo-600 hover:bg-indigo-700 rounded-xl shadow-xs transition flex items-center gap-1.5 cursor-pointer">
+                  <i class="fa-solid fa-paper-plane"></i> Gửi Đánh Giá & Nhận Xét
+                </button>
+              </div>
+            </form>
+          `;
+
+          // Xử lý click chọn sao
+          const starButtons = writeCard.querySelectorAll('.star-btn');
+          const starLabel = document.getElementById('starRatingLabel');
+          const starTexts = {
+            1: '1/5 sao (Kém)',
+            2: '2/5 sao (Tạm được)',
+            3: '3/5 sao (Khá hay)',
+            4: '4/5 sao (Rất hay)',
+            5: '5/5 sao (Tuyệt vời)'
+          };
+
+          function updateStarsUI(val) {
+            selectedStarRating = val;
+            starButtons.forEach(btn => {
+              const s = parseInt(btn.dataset.star, 10);
+              const icon = btn.querySelector('i');
+              if (s <= val) {
+                btn.className = 'star-btn text-amber-400 hover:scale-110 transition p-0.5';
+                icon.className = 'fa-solid fa-star';
+              } else {
+                btn.className = 'star-btn text-slate-300 hover:scale-110 transition p-0.5';
+                icon.className = 'fa-regular fa-star';
+              }
+            });
+            if (starLabel) starLabel.textContent = starTexts[val] || `${val}/5 sao`;
+          }
+
+          starButtons.forEach(btn => {
+            btn.addEventListener('click', () => {
+              updateStarsUI(parseInt(btn.dataset.star, 10));
+            });
+          });
+
+          updateStarsUI(5);
+
+          // Submit review
+          const form = document.getElementById('submitReviewForm');
+          form.addEventListener('submit', async (e) => {
+            e.preventDefault();
+            const comment = document.getElementById('reviewCommentInput').value.trim();
+            if (!comment) return;
+
+            const submitBtn = document.getElementById('btnSubmitReview');
+            submitBtn.disabled = true;
+            submitBtn.innerHTML = '<i class="fa-solid fa-spinner fa-spin"></i> Đang gửi...';
+
+            const revRes = await apiFetch(`/api/books/${bId}/reviews`, {
+              method: 'POST',
+              body: JSON.stringify({ rating: selectedStarRating, comment })
+            });
+
+            submitBtn.disabled = false;
+            submitBtn.innerHTML = '<i class="fa-solid fa-paper-plane"></i> Gửi Đánh Giá & Nhận Xét';
+
+            if (revRes.ok && revRes.data.success) {
+              Swal.fire({
+                icon: 'success',
+                iconColor: '#10b981',
+                title: 'Gửi Đánh Giá Thành Công!',
+                text: 'Cảm ơn bạn đã đóng góp nhận xét quý giá cho cộng đồng độc giả LibMaster.',
+                width: '400px',
+                confirmButtonColor: '#4f46e5',
+                customClass: { popup: 'rounded-2xl p-5 shadow-2xl' }
+              });
+              document.getElementById('reviewCommentInput').value = '';
+              loadReviews(bId);
+            } else {
+              Notify.error('Lỗi gửi đánh giá', revRes.data.message || 'Không thể lưu nhận xét.');
+            }
+          });
+
+        } else {
+          writeCard.innerHTML = `
+            <div class="p-4 bg-indigo-50/60 border border-indigo-100 rounded-2xl flex flex-col sm:flex-row items-center justify-between gap-3 text-center sm:text-left">
+              <div class="flex items-center gap-3">
+                <div class="w-10 h-10 rounded-xl bg-indigo-100 text-indigo-600 flex items-center justify-center text-lg">
+                  <i class="fa-solid fa-pen-nib"></i>
+                </div>
+                <div>
+                  <h4 class="font-bold text-slate-800 text-xs">Bạn đã đọc cuốn sách này?</h4>
+                  <p class="text-[11px] text-slate-500">Đăng nhập tài khoản độc giả để gửi đánh giá sao và chia sẻ cảm nhận cùng cộng đồng.</p>
+                </div>
+              </div>
+              <a href="login.html" class="px-4 py-2 text-xs font-bold text-white bg-indigo-600 hover:bg-indigo-700 rounded-xl shadow-xs transition shrink-0">
+                Đăng Nhập Ngay
+              </a>
+            </div>
+          `;
+        }
+
+        // 2. Tải danh sách Reviews từ API
+        const revDataRes = await apiFetch(`/api/books/${bId}/reviews`);
+        if (revDataRes.ok && revDataRes.data.success) {
+          const { avgRating, reviewCount, reviews } = revDataRes.data;
+
+          const formattedAvg = parseFloat(avgRating || 0).toFixed(1);
+          if (headerAvg) headerAvg.textContent = `⭐ ${formattedAvg} / 5`;
+          if (headerCount) headerCount.textContent = `(${reviewCount} đánh giá)`;
+          if (detailScore) detailScore.textContent = formattedAvg;
+          if (detailCount) detailCount.textContent = reviewCount;
+
+          if (!reviews || reviews.length === 0) {
+            listContainer.innerHTML = `
+              <div class="p-8 text-center bg-slate-50/60 rounded-2xl border border-slate-100 space-y-1.5">
+                <i class="fa-regular fa-comment-dots text-3xl text-slate-300 mb-1"></i>
+                <p class="text-xs font-bold text-slate-600">Chưa có nhận xét nào cho cuốn sách này.</p>
+                <p class="text-[11px] text-slate-400">Hãy là người đầu tiên chia sẻ cảm nhận của bạn về tác phẩm!</p>
+              </div>
+            `;
+            return;
+          }
+
+          listContainer.innerHTML = reviews.map(r => {
+            const starsHtml = Array.from({ length: 5 }, (_, idx) => {
+              return idx < r.rating 
+                ? '<i class="fa-solid fa-star text-amber-400"></i>' 
+                : '<i class="fa-regular fa-star text-slate-300"></i>';
+            }).join('');
+
+            return `
+              <div class="p-4 bg-white rounded-2xl border border-slate-200/80 shadow-2xs space-y-2 hover:shadow-xs transition">
+                <div class="flex items-center justify-between">
+                  <div class="flex items-center gap-2.5">
+                    <div class="w-8 h-8 rounded-full bg-gradient-to-tr from-indigo-500 to-indigo-600 text-white font-bold text-xs flex items-center justify-center shadow-2xs">
+                      ${r.userName ? r.userName.charAt(0).toUpperCase() : 'U'}
+                    </div>
+                    <div>
+                      <div class="text-xs font-bold text-slate-800 leading-tight flex items-center gap-1.5">
+                        <span>${r.userName}</span>
+                        ${r.userRole === 'admin' ? '<span class="text-[9px] bg-purple-100 text-purple-700 px-1.5 py-0.2 rounded font-extrabold">Thủ Thư</span>' : ''}
+                      </div>
+                      <div class="text-[10px] text-slate-400 mt-0.5">${r.createdAt || ''}</div>
+                    </div>
+                  </div>
+
+                  <!-- Số sao đã chấm -->
+                  <div class="flex items-center gap-1 text-xs">
+                    ${starsHtml}
+                  </div>
+                </div>
+
+                <!-- Nội dung cảm nhận -->
+                <p class="text-xs text-slate-700 leading-relaxed pl-10 pr-2">
+                  ${r.comment}
+                </p>
+              </div>
+            `;
+          }).join('');
+        }
+      }
+
+      // Nạp danh sách đánh giá của cuốn sách
+      loadReviews(bookId);
+
+      // Đăng ký hàng chờ trực tiếp từ trang chi tiết
+      window.joinWaitlistFromDetail = async function(bookId, bookTitle, position) {
+        if (!Auth.isLoggedIn()) {
+          Swal.fire({
+            title: 'Yêu cầu đăng nhập',
+            text: 'Vui lòng đăng nhập tài khoản để đăng ký xếp hàng và nhận email giữ chỗ khi có sách hoàn trả!',
+            icon: 'warning',
+            showCancelButton: true,
+            confirmButtonText: 'Đăng nhập ngay',
+            cancelButtonText: 'Để sau',
+            confirmButtonColor: '#7c3aed'
+          }).then((res) => {
+            if (res.isConfirmed) window.location.href = 'login.html';
+          });
+          return;
+        }
+
+        const res = await apiFetch(`/api/books/${bookId}/waitlist`, { method: 'POST' });
+        if (res.ok && res.data.success) {
+          Swal.fire({
+            icon: 'success',
+            title: 'Xếp Hàng Thành Công!',
+            html: `
+              <div class="text-left text-xs space-y-2 text-slate-600">
+                <p>Bạn đã đăng ký vào hàng chờ cuốn: <strong class="text-slate-800">${bookTitle}</strong>.</p>
+                <p>📍 Vị trí hiện tại: <strong class="text-amber-600 text-sm">#[${res.data.position || position}]</strong>.</p>
+                <div class="p-2.5 bg-purple-50 rounded-xl border border-purple-200 text-purple-900">
+                  <i class="fa-solid fa-envelope-circle-check mr-1 text-purple-600"></i>
+                  Hệ thống sẽ tự động gửi <strong>Email giữ chỗ trong 24 giờ</strong> về hộp thư của bạn ngay khi có độc giả hoàn trả sách!
+                </div>
+              </div>
+            `,
+            confirmButtonColor: '#7c3aed',
+            confirmButtonText: 'Đã Hiểu'
+          }).then(() => {
+            window.location.reload();
+          });
+        } else {
+          Notify.error('Không thể xếp hàng', res.data?.message || 'Lỗi xử lý.');
+        }
+      };
+
+    });
+  </script>
+  <!-- TRỢ LÝ THỦ THƯ ẢO AI -->
+  <script src="js/chatbot.js"></script>
+</body>
+</html>

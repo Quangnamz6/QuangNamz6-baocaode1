@@ -1,0 +1,111 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 400 600" width="400" height="600">
+  <defs>
+    <!-- Background Gradient -->
+    <linearGradient id="bgGrad" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#1e3a8a"/>
+      <stop offset="100%" stop-color="#0f172a"/>
+    </linearGradient>
+
+    <!-- Spine Shadow -->
+    <linearGradient id="spineShadow" x1="0%" y1="0%" x2="100%" y2="0%">
+      <stop offset="0%" stop-color="#000000" stop-opacity="0.6"/>
+      <stop offset="3%" stop-color="#ffffff" stop-opacity="0.15"/>
+      <stop offset="6%" stop-color="#000000" stop-opacity="0.25"/>
+      <stop offset="10%" stop-color="#000000" stop-opacity="0"/>
+    </linearGradient>
+
+    <!-- Border highlight -->
+    <linearGradient id="glowGrad" x1="0%" y1="0%" x2="0%" y2="100%">
+      <stop offset="0%" stop-color="#ffffff" stop-opacity="0.2"/>
+      <stop offset="100%" stop-color="#000000" stop-opacity="0.4"/>
+    </linearGradient>
+
+    <filter id="dropShadow" x="-20%" y="-20%" width="140%" height="140%">
+      <feDropShadow dx="0" dy="4" stdDeviation="6" flood-color="#000" flood-opacity="0.35"/>
+    </filter>
+  </defs>
+
+  <!-- Base Background -->
+  <rect width="400" height="600" fill="url(#bgGrad)" rx="8"/>
+
+  <!-- Decorative Pattern Background -->
+  <g opacity="0.08">
+    <circle cx="200" cy="240" r="160" fill="#fff" />
+    <circle cx="200" cy="240" r="120" fill="none" stroke="#fff" stroke-width="2" stroke-dasharray="6,6" />
+    <circle cx="200" cy="240" r="80" fill="none" stroke="#fff" stroke-width="1.5" />
+    <path d="M 0,100 L 400,500 M 0,200 L 400,600" stroke="#fff" stroke-width="1" />
+  </g>
+
+  <!-- Accent Glow -->
+  <circle cx="320" cy="120" r="140" fill="#ef4444" opacity="0.15" />
+  <circle cx="80" cy="460" r="120" fill="#ef4444" opacity="0.12" />
+
+  <!-- Top Category Ribbon -->
+  <g transform="translate(30, 36)">
+    <rect width="180" height="26" rx="6" fill="#000000" fill-opacity="0.35" />
+    <text x="12" y="17" fill="#ffffff" font-family="'Segoe UI', Roboto, sans-serif" font-size="10" font-weight="700" letter-spacing="1.5">
+      MANGA TRINH THÁM
+    </text>
+  </g>
+
+  <!-- Age Restriction Tag -->
+  <g transform="translate(320, 36)">
+    <rect width="50" height="26" rx="6" fill="#10b981" />
+    <text x="25" y="17" fill="#ffffff" font-family="'Segoe UI', Roboto, sans-serif" font-size="11" font-weight="900" text-anchor="middle">
+      ALL
+    </text>
+  </g>
+
+  <!-- Center Artwork / Icon Container -->
+  <g transform="translate(200, 220)" filter="url(#dropShadow)">
+    <circle cx="0" cy="0" r="68" fill="#ffffff" fill-opacity="0.12" stroke="#ef4444" stroke-width="2.5" />
+    <circle cx="0" cy="0" r="54" fill="#ffffff" fill-opacity="0.06" />
+    
+      <!-- Conan glasses and bowtie -->
+      <rect x="-30" y="-18" width="24" height="20" rx="4" fill="none" stroke="#ffffff" stroke-width="3"/>
+      <rect x="6" y="-18" width="24" height="20" rx="4" fill="none" stroke="#ffffff" stroke-width="3"/>
+      <line x1="-6" y1="-8" x2="6" y2="-8" stroke="#ffffff" stroke-width="3"/>
+      <!-- Red bowtie -->
+      <polygon points="-18,14 -2,6 -2,22" fill="#ef4444"/>
+      <polygon points="18,14 2,6 2,22" fill="#ef4444"/>
+      <circle cx="0" cy="14" r="5" fill="#dc2626"/>
+    
+  </g>
+
+  <!-- Decorative Divider Line -->
+  <line x1="60" y1="330" x2="340" y2="330" stroke="#ef4444" stroke-width="2" opacity="0.8" />
+  <circle cx="200" cy="330" r="4" fill="#ef4444" />
+
+  <!-- Title & Subtitle Section -->
+  <g transform="translate(200, 375)" text-anchor="middle" filter="url(#dropShadow)">
+    <!-- Main Title -->
+    <text x="0" y="0" fill="#ffffff" font-family="'Segoe UI', Roboto, sans-serif" font-size="22" font-weight="900" letter-spacing="0.5">
+      CONAN
+    </text>
+    
+    <text x="0" y="28" fill="#ef4444" font-family="'Segoe UI', Roboto, sans-serif" font-size="13" font-weight="600" opacity="0.95">
+      Tập 1: Thám Tử Lừng Danh
+    </text>
+  </g>
+
+  <!-- Author Section -->
+  <g transform="translate(200, 480)" text-anchor="middle">
+    <rect x="-120" y="-18" width="240" height="32" rx="16" fill="#000000" fill-opacity="0.3" stroke="#ffffff" stroke-opacity="0.15" stroke-width="1"/>
+    <text x="0" y="3" fill="#e2e8f0" font-family="'Segoe UI', Roboto, sans-serif" font-size="12" font-weight="600">
+      ✍ Gosho Aoyama
+    </text>
+  </g>
+
+  <!-- Bottom Publisher Bar -->
+  <g transform="translate(0, 560)">
+    <rect width="400" height="40" fill="#000000" fill-opacity="0.45" />
+    <line x1="0" y1="0" x2="400" y2="0" stroke="#ef4444" stroke-width="1.5" opacity="0.6"/>
+    <text x="200" y="24" fill="#cbd5e1" font-family="'Segoe UI', Roboto, sans-serif" font-size="10" font-weight="700" letter-spacing="2" text-anchor="middle">
+      LIBMASTER CLASSIC COLLECTION
+    </text>
+  </g>
+
+  <!-- Book Spine 3D Effect Overlay -->
+  <rect width="400" height="600" fill="url(#spineShadow)" rx="8" pointer-events="none" />
+  <rect width="400" height="600" fill="url(#glowGrad)" rx="8" pointer-events="none" />
+</svg>

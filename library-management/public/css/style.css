@@ -1,0 +1,265 @@
+/* ========================================================
+   HỆ THỐNG QUẢN LÝ THƯ VIỆN - STYLE CSS DÙNG CHUNG
+   ======================================================== */
+
+@import url('https://fonts.googleapis.com/css2?family=Lora:ital,wght@0,500;0,600;1,400;1,500;1,600&family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800&display=swap');
+
+body {
+  font-family: 'Plus Jakarta Sans', -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+  background-color: #f8fafc;
+  color: #1e293b;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+/* Banner Trích Dẫn Hay Trong Ngày - Chống nhảy chữ & Tối ưu hiển thị Tiếng Việt */
+.quote-text-banner {
+  font-family: 'Lora', 'Plus Jakarta Sans', Georgia, serif;
+  font-style: italic;
+  font-weight: 500;
+  line-height: 1.65;
+  letter-spacing: -0.005em;
+  text-rendering: optimizeLegibility;
+  min-height: 52px;
+  display: flex;
+  align-items: center;
+  transition: opacity 0.2s ease-in-out;
+}
+
+/* Glassmorphism card effect */
+.glass-panel {
+  background: rgba(255, 255, 255, 0.95);
+  backdrop-filter: blur(10px);
+  border: 1px solid rgba(226, 232, 240, 0.9);
+}
+
+/* Navigation items */
+.nav-tab-btn {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  padding: 0.75rem 1rem;
+  border-radius: 0.75rem;
+  font-weight: 500;
+  color: #64748b;
+  transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+}
+.nav-tab-btn:hover {
+  background-color: #f1f5f9;
+  color: #4f46e5;
+  transform: translateX(4px);
+}
+.nav-tab-btn.active {
+  background: linear-gradient(135deg, #4f46e5 0%, #3b82f6 100%);
+  color: #ffffff;
+  font-weight: 600;
+  box-shadow: 0 4px 14px 0 rgba(79, 70, 229, 0.35);
+}
+
+/* Badges */
+.badge {
+  display: inline-flex;
+  align-items: center;
+  padding: 0.25rem 0.65rem;
+  border-radius: 9999px;
+  font-size: 0.75rem;
+  font-weight: 600;
+  line-height: 1;
+}
+.badge-success {
+  background-color: #ecfdf5;
+  color: #059669;
+  border: 1px solid #a7f3d0;
+}
+.badge-warning {
+  background-color: #fffbeb;
+  color: #d97706;
+  border: 1px solid #fde68a;
+}
+.badge-danger {
+  background-color: #fef2f2;
+  color: #dc2626;
+  border: 1px solid #fecaca;
+}
+.badge-info {
+  background-color: #eff6ff;
+  color: #2563eb;
+  border: 1px solid #bfdbfe;
+}
+
+/* Table styles */
+.modern-table th {
+  background-color: #f8fafc;
+  font-size: 0.75rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  color: #64748b;
+  padding: 0.875rem 1.25rem;
+  border-bottom: 1px solid #e2e8f0;
+}
+.modern-table td {
+  padding: 1rem 1.25rem;
+  border-bottom: 1px solid #f1f5f9;
+  font-size: 0.875rem;
+  color: #334155;
+}
+.modern-table tr:hover td {
+  background-color: #f8fafc;
+}
+
+/* Hover effects */
+.book-card {
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+}
+.book-card:hover {
+  transform: translateY(-6px);
+  box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.1), 0 10px 10px -5px rgba(0, 0, 0, 0.04);
+}
+
+/* Stat Card Interactive Effects */
+.stat-card {
+  cursor: pointer;
+  user-select: none;
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+}
+.stat-card:hover {
+  transform: translateY(-4px);
+  box-shadow: 0 14px 28px -4px rgba(0, 0, 0, 0.09), 0 6px 12px -2px rgba(0, 0, 0, 0.04);
+}
+.stat-card.stat-books:hover {
+  border-color: #818cf8;
+  background-color: rgba(238, 242, 255, 0.7);
+}
+.stat-card.stat-loans:hover {
+  border-color: #fbbf24;
+  background-color: rgba(254, 243, 199, 0.7);
+}
+.stat-card.stat-overdue:hover {
+  border-color: #f87171;
+  background-color: rgba(254, 226, 226, 0.7);
+}
+.stat-card.stat-users:hover {
+  border-color: #34d399;
+  background-color: rgba(209, 250, 229, 0.7);
+}
+
+/* Action Button & Interactive Element Hover */
+.btn-action-hover {
+  cursor: pointer;
+  transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+}
+.btn-action-hover:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 6px 16px -2px rgba(79, 70, 229, 0.3);
+}
+.btn-action-hover:active {
+  transform: translateY(0);
+}
+
+/* Portrait Book Cover Ratio (2:3 Standard Bookstore/Library) */
+.book-card-cover {
+  aspect-ratio: 2 / 3;
+  width: 100%;
+  object-fit: cover;
+  display: block;
+}
+
+/* Compact Modal Animations & Sizing */
+.compact-modal-container {
+  max-width: 380px;
+  width: 100%;
+}
+
+/* ========================================================
+   GLOBAL SWEETALERT2 STYLING (TINH TẾ & NHỎ GỌN)
+   ======================================================== */
+.swal2-popup {
+  max-width: 415px !important;
+  width: 92% !important;
+  border-radius: 1.15rem !important;
+  padding: 1.25rem 1.25rem 1.5rem !important;
+  box-shadow: 0 20px 30px -10px rgba(15, 23, 42, 0.18), 0 8px 12px -4px rgba(15, 23, 42, 0.08) !important;
+  font-family: inherit !important;
+  border: 1px solid rgba(226, 232, 240, 0.8) !important;
+}
+
+.swal2-title {
+  font-size: 1.15rem !important;
+  font-weight: 700 !important;
+  color: #1e293b !important;
+  padding: 0.35rem 0.5rem 0 !important;
+  margin-bottom: 0.4rem !important;
+  line-height: 1.35 !important;
+}
+
+.swal2-html-container {
+  font-size: 0.875rem !important;
+  color: #475569 !important;
+  margin: 0.5rem 0.25rem 0.25rem !important;
+  line-height: 1.5 !important;
+}
+
+.swal2-icon {
+  transform: scale(0.78) !important;
+  margin: 0.5rem auto 0.25rem !important;
+}
+
+.swal2-actions {
+  margin-top: 1.15rem !important;
+  gap: 0.5rem !important;
+  width: 100% !important;
+  justify-content: center !important;
+}
+
+.swal2-confirm, .swal2-cancel {
+  font-size: 0.875rem !important;
+  font-weight: 600 !important;
+  padding: 0.55rem 1.15rem !important;
+  border-radius: 0.75rem !important;
+  box-shadow: none !important;
+  outline: none !important;
+  min-height: auto !important;
+  margin: 0 !important;
+  transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1) !important;
+}
+
+.swal2-confirm:hover {
+  transform: translateY(-1px) !important;
+  box-shadow: 0 4px 12px -2px rgba(79, 70, 229, 0.35) !important;
+}
+
+.swal2-cancel:hover {
+  transform: translateY(-1px) !important;
+  background-color: #e2e8f0 !important;
+}
+
+/* SweetAlert2 Toast Corner Customization */
+.swal2-toast {
+  max-width: 380px !important;
+  border-radius: 0.9rem !important;
+  padding: 0.65rem 0.95rem !important;
+  box-shadow: 0 12px 24px -4px rgba(15, 23, 42, 0.12), 0 4px 6px -2px rgba(15, 23, 42, 0.05) !important;
+  border: 1px solid rgba(226, 232, 240, 0.85) !important;
+}
+
+.swal2-toast .swal2-title {
+  font-size: 0.875rem !important;
+  font-weight: 600 !important;
+  color: #1e293b !important;
+  padding: 0 !important;
+  margin: 0 !important;
+}
+
+.swal2-toast .swal2-html-container {
+  font-size: 0.775rem !important;
+  margin: 0.15rem 0 0 !important;
+  color: #64748b !important;
+}
+
+.swal2-toast .swal2-icon {
+  transform: scale(0.7) !important;
+  margin: 0 0.5rem 0 0 !important;
+}
+
+

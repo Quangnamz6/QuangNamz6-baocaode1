@@ -1,0 +1,286 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Đăng Nhập & Xác Thực OTP - Thư Viện LibMaster</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+  <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+  <link rel="stylesheet" href="css/style.css">
+  <style>
+    .hero-bg {
+      background-image: url('https://images.unsplash.com/photo-1507842217343-583bb7270b66?q=80&w=1920');
+      background-size: cover;
+      background-position: center;
+      background-repeat: no-repeat;
+    }
+    .glass-auth {
+      background: rgba(255, 255, 255, 0.94);
+      backdrop-filter: blur(18px);
+      -webkit-backdrop-filter: blur(18px);
+      border: 1px solid rgba(255, 255, 255, 0.45);
+    }
+  </style>
+</head>
+<body class="hero-bg min-h-screen flex flex-col justify-between relative text-slate-800">
+
+  <!-- Dark Atmospheric Mask Overlay -->
+  <div class="absolute inset-0 bg-gradient-to-r from-slate-950/95 via-slate-900/85 to-slate-950/95 z-0"></div>
+
+  <!-- Header -->
+  <header class="relative z-10 h-20 px-6 sm:px-12 flex items-center justify-between border-b border-white/10">
+    <a href="index.html" class="flex items-center gap-3">
+      <div class="w-11 h-11 rounded-2xl bg-gradient-to-tr from-amber-500 to-indigo-600 flex items-center justify-center text-white shadow-lg shadow-indigo-500/20">
+        <i class="fa-solid fa-book-open-reader text-xl"></i>
+      </div>
+      <div>
+        <span class="font-black text-white text-xl tracking-tight block">LibMaster</span>
+        <span class="text-[11px] text-amber-300 font-medium tracking-wide">Cổng Tri Thức & Quản Lý Thư Viện</span>
+      </div>
+    </a>
+    <a href="index.html" class="px-4 py-2 text-xs font-bold text-white bg-white/10 hover:bg-white/20 rounded-xl backdrop-blur-sm transition flex items-center gap-2 border border-white/10">
+      <i class="fa-solid fa-arrow-left"></i> Về Danh Mục Sách
+    </a>
+  </header>
+
+  <!-- Main Container -->
+  <main class="relative z-10 flex-1 flex items-center justify-center p-4 sm:p-8">
+    <div class="max-w-5xl w-full grid grid-cols-1 lg:grid-cols-12 gap-8 items-center">
+      
+      <!-- CỘT TRÁI: QUOTE Ý NGHĨA VỀ SÁCH & BẢO MẬT -->
+      <div class="lg:col-span-6 text-white space-y-6 hidden lg:block pr-6">
+        <!-- Dòng Tiêu Đề: Tinh Hoa Tri Thức Nhân Loại -->
+        <div>
+          <div class="inline-flex items-center gap-2 px-3 py-1 rounded-full text-xs font-bold uppercase tracking-wider bg-amber-400/20 text-amber-300 backdrop-blur-md border border-amber-400/30 mb-3">
+            <i class="fa-solid fa-sparkles text-amber-300"></i> Danh Ngôn Văn Học
+          </div>
+          <h2 class="text-3xl sm:text-4xl font-bold text-white tracking-wide uppercase drop-shadow-lg flex items-center gap-3">
+            <i class="fa-solid fa-feather-pointed text-amber-400 text-2xl sm:text-3xl"></i>
+            <span>Tinh Hoa Tri Thức Nhân Loại</span>
+          </h2>
+        </div>
+
+        <!-- Dòng Câu Trích Dẫn: Mỗi cuốn sách là một giấc mơ mà bạn cầm trên tay -->
+        <blockquote class="text-xl sm:text-2xl italic text-slate-100 leading-relaxed font-light drop-shadow-md border-l-4 border-amber-400 pl-4 py-1">
+          &ldquo;Mỗi cuốn sách là một giấc mơ mà bạn cầm trên tay.&rdquo;
+        </blockquote>
+
+        <!-- Dòng Tên Tác Giả: - Neil Gaiman (Nhà văn & Tác giả tiểu thuyết) -->
+        <p class="text-base sm:text-lg text-slate-300 font-medium flex items-center gap-2">
+          <span>&mdash;</span> <strong class="text-white font-semibold">Neil Gaiman</strong> <span>(Nhà văn & Tác giả tiểu thuyết)</span>
+        </p>
+
+        <div class="pt-4 border-t border-white/15 space-y-3.5 text-xs text-slate-300">
+          <div class="flex items-center gap-3">
+            <div class="w-8 h-8 rounded-lg bg-emerald-500/20 text-emerald-400 flex items-center justify-center text-sm border border-emerald-500/30">
+              <i class="fa-solid fa-user-shield"></i>
+            </div>
+            <span>Bảo mật chống tài khoản ảo bằng <strong>Mã OTP 6 chữ số</strong> xác thực thực tế</span>
+          </div>
+
+          <div class="flex items-center gap-3">
+            <div class="w-8 h-8 rounded-lg bg-indigo-500/20 text-indigo-300 flex items-center justify-center text-sm border border-indigo-500/30">
+              <i class="fa-solid fa-mobile-screen"></i>
+            </div>
+            <span>Đăng nhập linh hoạt bằng cả <strong>Email</strong> hoặc <strong>Số điện thoại</strong></span>
+          </div>
+
+          <div class="flex items-center gap-3">
+            <div class="w-8 h-8 rounded-lg bg-amber-500/20 text-amber-300 flex items-center justify-center text-sm border border-amber-500/30">
+              <i class="fa-solid fa-shield-halved"></i>
+            </div>
+            <span>Kiểm soát độ tuổi mượn sách nghiêm ngặt (Sách thiếu nhi, Phổ thông & 18+)</span>
+          </div>
+        </div>
+      </div>
+
+      <!-- CỘT PHẢI: FORM ĐĂNG NHẬP / ĐĂNG KÝ (GLASSMORPHISM) -->
+      <div class="lg:col-span-6 w-full max-w-md mx-auto">
+        <div class="glass-auth p-6 sm:p-8 rounded-3xl shadow-2xl space-y-5">
+          
+          <!-- Tab Switcher -->
+          <div class="flex p-1 bg-slate-200/70 rounded-2xl">
+            <button id="tabLoginBtn" class="flex-1 py-2 text-xs font-extrabold rounded-xl transition bg-white text-indigo-700 shadow-sm">
+              Đăng Nhập
+            </button>
+            <button id="tabRegisterBtn" class="flex-1 py-2 text-xs font-bold text-slate-500 rounded-xl hover:text-slate-800 transition">
+              Đăng Ký Tài Khoản
+            </button>
+          </div>
+
+          <!-- FORM ĐĂNG NHẬP (BẰNG EMAIL HOẶC SĐT) -->
+          <form id="loginForm" class="space-y-4">
+            <div>
+              <label class="block text-xs font-bold text-slate-700 uppercase tracking-wider mb-1">Email hoặc Số điện thoại <span class="text-rose-500">*</span></label>
+              <div class="relative">
+                <i class="fa-regular fa-user absolute left-3.5 top-1/2 -translate-y-1/2 text-slate-400 text-sm"></i>
+                <input type="text" id="loginContact" required placeholder="Nhập Email hoặc SĐT..."
+                       class="w-full pl-10 pr-4 py-2.5 text-sm bg-white border border-slate-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-indigo-500/20 focus:border-indigo-600">
+              </div>
+            </div>
+
+            <div>
+              <label class="block text-xs font-bold text-slate-700 uppercase tracking-wider mb-1">Mật khẩu <span class="text-rose-500">*</span></label>
+              <div class="relative">
+                <i class="fa-solid fa-lock absolute left-3.5 top-1/2 -translate-y-1/2 text-slate-400 text-sm"></i>
+                <input type="password" id="loginPassword" required placeholder="••••••••"
+                       class="w-full pl-10 pr-4 py-2.5 text-sm bg-white border border-slate-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-indigo-500/20 focus:border-indigo-600">
+              </div>
+            </div>
+
+            <button type="submit" id="btnLoginSubmit"
+                    class="w-full py-2.5 text-sm font-bold text-white bg-indigo-600 hover:bg-indigo-700 rounded-xl shadow-lg shadow-indigo-600/30 transition flex items-center justify-center gap-2">
+              <i class="fa-solid fa-right-to-bracket"></i> Đăng Nhập Hệ Thống
+            </button>
+          </form>
+
+          <!-- FORM ĐĂNG KÝ (BƯỚC 1: NHẬP THÔNG TIN) -->
+          <form id="registerForm" class="space-y-3.5 hidden">
+            <div>
+              <label class="block text-xs font-bold text-slate-700 uppercase tracking-wider mb-1">Họ và tên <span class="text-rose-500">*</span></label>
+              <div class="relative">
+                <i class="fa-regular fa-user absolute left-3.5 top-1/2 -translate-y-1/2 text-slate-400 text-sm"></i>
+                <input type="text" id="regFullName" required placeholder="Nguyễn Văn A"
+                       class="w-full pl-10 pr-4 py-2 text-sm bg-white border border-slate-200 rounded-xl focus:outline-none focus:border-indigo-600">
+              </div>
+            </div>
+
+            <div>
+              <label class="block text-xs font-bold text-slate-700 uppercase tracking-wider mb-1">Email hoặc Số điện thoại <span class="text-rose-500">*</span></label>
+              <div class="relative">
+                <i class="fa-solid fa-address-book absolute left-3.5 top-1/2 -translate-y-1/2 text-slate-400 text-sm"></i>
+                <input type="text" id="regContact" required placeholder="docgia@gmail.com hoặc 0912345678"
+                       class="w-full pl-10 pr-4 py-2 text-sm bg-white border border-slate-200 rounded-xl focus:outline-none focus:border-indigo-600">
+              </div>
+              <p class="text-[10px] text-slate-500 mt-1">Mã OTP xác thực chống tài khoản ảo sẽ được gửi tới địa chỉ này.</p>
+            </div>
+
+            <div>
+              <div class="flex items-center justify-between mb-1">
+                <label class="block text-xs font-bold text-slate-700 uppercase tracking-wider">Ngày sinh <span class="text-rose-500">*</span></label>
+                <span class="text-[10px] text-indigo-600 font-semibold"><i class="fa-solid fa-shield"></i> Xác thực độ tuổi</span>
+              </div>
+              <div class="relative">
+                <i class="fa-regular fa-calendar absolute left-3.5 top-1/2 -translate-y-1/2 text-slate-400 text-sm"></i>
+                <input type="date" id="regDateOfBirth" required max="2026-10-09"
+                       class="w-full pl-10 pr-4 py-2 text-sm bg-white border border-slate-200 rounded-xl focus:outline-none focus:border-indigo-600">
+              </div>
+            </div>
+
+            <!-- Bộ chọn địa chỉ hành chính Việt Nam tự động -->
+            <div class="space-y-1.5">
+              <label class="block text-xs font-bold text-slate-700 uppercase tracking-wider flex items-center gap-1.5">
+                <i class="fa-solid fa-location-dot text-indigo-500"></i>
+                <span>Địa chỉ nhận sách (Tùy chọn)</span>
+              </label>
+
+              <!-- Hàng 1 (2 cột): Tỉnh / Thành phố & Quận / Huyện -->
+              <div class="grid grid-cols-1 sm:grid-cols-2 gap-2">
+                <div>
+                  <label class="block text-[11px] font-semibold text-slate-500 mb-0.5">Tỉnh / Thành phố</label>
+                  <select id="regProvince"
+                          class="w-full bg-slate-50 border border-slate-200 rounded-xl px-3 py-2.5 text-xs focus:outline-none focus:ring-2 focus:ring-indigo-500 font-medium text-slate-700">
+                    <option value="">-- Chọn Tỉnh / Thành --</option>
+                  </select>
+                </div>
+                <div>
+                  <label class="block text-[11px] font-semibold text-slate-500 mb-0.5">Quận / Huyện</label>
+                  <select id="regDistrict" disabled
+                          class="w-full bg-slate-50 border border-slate-200 rounded-xl px-3 py-2.5 text-xs focus:outline-none focus:ring-2 focus:ring-indigo-500 font-medium text-slate-700 disabled:bg-slate-100 disabled:text-slate-400 disabled:cursor-not-allowed">
+                    <option value="">-- Chọn Quận / Huyện --</option>
+                  </select>
+                </div>
+              </div>
+
+              <!-- Hàng 2 (2 cột): Phường / Xã & Số nhà, tên đường -->
+              <div class="grid grid-cols-1 sm:grid-cols-2 gap-2">
+                <div>
+                  <label class="block text-[11px] font-semibold text-slate-500 mb-0.5">Phường / Xã</label>
+                  <select id="regWard" disabled
+                          class="w-full bg-slate-50 border border-slate-200 rounded-xl px-3 py-2.5 text-xs focus:outline-none focus:ring-2 focus:ring-indigo-500 font-medium text-slate-700 disabled:bg-slate-100 disabled:text-slate-400 disabled:cursor-not-allowed">
+                    <option value="">-- Chọn Phường / Xã --</option>
+                  </select>
+                </div>
+                <div>
+                  <label class="block text-[11px] font-semibold text-slate-500 mb-0.5">Số nhà, tên đường</label>
+                  <input type="text" id="regStreet" placeholder="VD: Số 12 ngõ 8..."
+                         class="w-full bg-slate-50 border border-slate-200 rounded-xl px-3 py-2.5 text-xs focus:outline-none focus:ring-2 focus:ring-indigo-500 text-slate-800">
+                </div>
+              </div>
+
+              <!-- Input ẩn lưu trữ chuỗi địa chỉ ghép đầy đủ -->
+              <input type="hidden" id="regAddress" name="address">
+            </div>
+
+            <div>
+              <label class="block text-xs font-bold text-slate-700 uppercase tracking-wider mb-1">Mật khẩu (Tối thiểu 6 ký tự) <span class="text-rose-500">*</span></label>
+              <div class="relative">
+                <i class="fa-solid fa-lock absolute left-3.5 top-1/2 -translate-y-1/2 text-slate-400 text-sm"></i>
+                <input type="password" id="regPassword" minlength="6" required placeholder="••••••••"
+                       class="w-full pl-10 pr-4 py-2 text-sm bg-white border border-slate-200 rounded-xl focus:outline-none focus:border-indigo-600">
+              </div>
+            </div>
+
+            <button type="submit" id="btnRegisterSubmit"
+                    class="w-full py-2.5 text-sm font-bold text-white bg-indigo-600 hover:bg-indigo-700 rounded-xl shadow-lg shadow-indigo-600/30 transition flex items-center justify-center gap-2">
+              <i class="fa-solid fa-paper-plane"></i> Gửi Mã Xác Thực OTP
+            </button>
+          </form>
+
+        </div>
+      </div>
+
+    </div>
+  </main>
+
+  <!-- ==================== MODAL NHẬP MÃ XÁC THỰC OTP ==================== -->
+  <div id="otpModal" class="fixed inset-0 bg-slate-950/80 backdrop-blur-md z-50 hidden items-center justify-center p-4">
+    <div class="bg-white rounded-3xl max-w-sm w-full p-6 shadow-2xl border border-slate-100 text-center space-y-4 animate-fade-in relative">
+      
+      <div class="w-14 h-14 rounded-2xl bg-indigo-50 text-indigo-600 flex items-center justify-center mx-auto text-2xl border border-indigo-100">
+        <i class="fa-solid fa-shield-halved"></i>
+      </div>
+
+      <div>
+        <h3 class="text-lg font-extrabold text-slate-800">Xác Thực Mã OTP</h3>
+        <p class="text-xs text-slate-500 mt-1">
+          Mã xác thực 6 chữ số đã được gửi tới: <br>
+          <strong id="otpTargetContact" class="text-indigo-600 font-mono text-sm">--</strong>
+        </p>
+      </div>
+
+      <!-- Ô nhập OTP 6 chữ số -->
+      <div>
+        <input type="text" id="otpCodeInput" maxlength="6" placeholder="000000"
+               class="w-full text-center tracking-[0.5em] font-mono text-2xl font-black py-3 bg-slate-50 border-2 border-indigo-200 rounded-2xl focus:outline-none focus:border-indigo-600 focus:bg-white text-indigo-900">
+        <p class="text-[11px] text-slate-400 mt-1.5">Mã có hiệu lực trong 5 phút</p>
+      </div>
+
+      <div class="space-y-2 pt-2">
+        <button id="btnVerifyOtpSubmit" class="w-full py-2.5 text-xs font-bold text-white bg-indigo-600 hover:bg-indigo-700 rounded-xl shadow-md transition flex items-center justify-center gap-1.5">
+          <i class="fa-solid fa-circle-check"></i> Xác Nhận Kích Hoạt
+        </button>
+
+        <button id="btnResendOtp" class="w-full py-2 text-xs font-semibold text-slate-500 hover:text-indigo-600 rounded-xl transition">
+          <i class="fa-solid fa-rotate-right"></i> Gửi lại mã OTP
+        </button>
+
+        <button id="btnCloseOtpModal" class="text-xs text-slate-400 hover:text-slate-600 pt-1">
+          Đóng và quay lại
+        </button>
+      </div>
+
+    </div>
+  </div>
+
+  <!-- Footer -->
+  <footer class="relative z-10 py-4 text-center text-xs text-white/50 border-t border-white/10">
+    Hệ thống Quản lý Thư viện LibMaster &bull; Bảo mật chống tài khoản ảo OTP & Xác thực độ tuổi
+  </footer>
+
+  <script src="js/main.js"></script>
+  <script src="js/auth.js"></script>
+  <script src="js/chatbot.js"></script>
+</body>
+</html>

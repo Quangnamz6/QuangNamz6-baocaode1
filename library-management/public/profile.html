@@ -1,0 +1,210 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Trang Cá Nhân Độc Giả - Quản Lý Sách Đang Mượn</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+  <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+  <link rel="stylesheet" href="css/style.css">
+</head>
+<body class="bg-slate-50 text-slate-800 min-h-screen flex flex-col justify-between">
+
+  <!-- Header -->
+  <header class="bg-white/90 backdrop-blur-md border-b border-slate-200 sticky top-0 z-30">
+    <div class="max-w-7xl mx-auto px-6 h-16 flex items-center justify-between">
+      <a href="index.html" class="flex items-center gap-3">
+        <div class="w-10 h-10 rounded-xl bg-gradient-to-tr from-indigo-600 to-blue-500 flex items-center justify-center text-white shadow-md shadow-indigo-100">
+          <i class="fa-solid fa-book-bookmark text-lg"></i>
+        </div>
+        <div>
+          <span class="font-bold text-slate-800 text-lg leading-tight block">LibMaster</span>
+          <span class="text-[11px] text-slate-400 font-medium">Trang Cá Nhân Độc Giả</span>
+        </div>
+      </a>
+
+      <div id="authNavArea"></div>
+    </div>
+  </header>
+
+  <!-- Main Container -->
+  <main class="max-w-6xl mx-auto px-6 py-10 w-full flex-1 space-y-8">
+    
+    <!-- User Info Card -->
+    <div class="glass-panel p-6 sm:p-8 rounded-3xl border border-slate-200/80 shadow-sm flex flex-col md:flex-row items-start md:items-center justify-between gap-6">
+      <div class="flex items-center gap-4">
+        <div class="w-16 h-16 rounded-2xl bg-gradient-to-tr from-indigo-600 to-blue-500 flex items-center justify-center text-white text-2xl font-black shadow-md shadow-indigo-100">
+          <i class="fa-solid fa-user-graduate"></i>
+        </div>
+        <div>
+          <div class="flex items-center gap-2">
+            <h2 id="profileUserName" class="text-xl sm:text-2xl font-extrabold text-slate-800">Đang tải...</h2>
+            <span id="profileUserRole" class="badge badge-info">Độc Giả</span>
+          </div>
+          <p id="profileUserEmail" class="text-xs text-slate-500 mt-1">...</p>
+          <p id="profileUserAge" class="text-xs text-indigo-700 font-bold mt-1"></p>
+        </div>
+      </div>
+
+      <!-- Giới hạn mượn sách -->
+      <div class="w-full md:w-72 bg-slate-50 p-4 rounded-2xl border border-slate-200/80 space-y-2">
+        <div class="flex justify-between items-center text-xs">
+          <span class="font-semibold text-slate-600">Sách Đang Mượn:</span>
+          <span id="profileActiveCount" class="font-extrabold text-indigo-600 text-sm">0 / 3 quyển</span>
+        </div>
+        <div class="w-full bg-slate-200 h-2 rounded-full overflow-hidden">
+          <div id="borrowLimitProgress" class="bg-indigo-600 h-full rounded-full transition-all duration-500" style="width: 0%"></div>
+        </div>
+        <p id="profileLimitDesc" class="text-[11px] text-slate-400">Giới hạn tối đa 3 quyển sách chưa trả cùng lúc.</p>
+      </div>
+    </div>
+
+    <!-- ==================== KHỐI TÍCH ĐIỂM & ĐỔI QUÀ (GAMIFICATION) ==================== -->
+    <div class="glass-panel p-6 sm:p-8 rounded-3xl border border-purple-200/80 bg-gradient-to-br from-white via-purple-50/30 to-indigo-50/40 shadow-sm space-y-6">
+      <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-4 pb-4 border-b border-purple-100">
+        <div>
+          <h3 class="text-xl font-extrabold text-slate-800 flex items-center gap-2">
+            <span class="w-8 h-8 rounded-xl bg-purple-600 text-white flex items-center justify-center text-sm shadow-sm shadow-purple-200">🎯</span>
+            <span>Thử Thách Đọc Sách & Tích Điểm Đổi Quà</span>
+          </h3>
+          <p class="text-xs text-slate-500 mt-1">Hoàn trả sách đúng hạn để nhận +50 điểm thưởng và mở khóa các đặc quyền cao cấp</p>
+        </div>
+        
+        <!-- Tổng điểm hiển thị lớn -->
+        <div class="flex items-center gap-3 bg-white px-5 py-3 rounded-2xl border border-purple-200 shadow-sm">
+          <div class="w-10 h-10 rounded-full bg-amber-100 text-amber-500 flex items-center justify-center text-xl font-bold">
+            <i class="fa-solid fa-coins"></i>
+          </div>
+          <div>
+            <div class="text-[11px] font-bold text-slate-400 uppercase tracking-wider">Tổng Điểm Tích Lũy</div>
+            <div class="text-2xl font-black text-purple-700 leading-none mt-0.5" id="userTotalPoints">0</div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Bảng Huy Hiệu Độc Giả & Đổi Đặc Quyền (2 Cột) -->
+      <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
+        
+        <!-- Cột 1 & 2: Bảng Huy Hiệu -->
+        <div class="lg:col-span-2 space-y-3">
+          <h4 class="text-xs font-bold uppercase tracking-wider text-slate-600 flex items-center gap-1.5">
+            <i class="fa-solid fa-award text-purple-600"></i>
+            <span>Bảng Huy Hiệu Vinh Danh Độc Giả</span>
+          </h4>
+          <div class="grid grid-cols-2 sm:grid-cols-4 gap-3" id="badgesContainer">
+            <!-- Huy hiệu 1 -->
+            <div id="badge-starter" class="p-3 bg-white rounded-2xl border border-slate-200 text-center space-y-1 shadow-2xs">
+              <div class="text-2xl">🥉</div>
+              <div class="font-bold text-xs text-slate-800">Mọt Sách Tập Sự</div>
+              <div class="text-[10px] text-emerald-600 font-semibold"><i class="fa-solid fa-check"></i> Đã mở khóa</div>
+            </div>
+            <!-- Huy hiệu 2 -->
+            <div id="badge-loyal" class="p-3 bg-white rounded-2xl border border-slate-200 text-center space-y-1 shadow-2xs">
+              <div class="text-2xl">🥈</div>
+              <div class="font-bold text-xs text-slate-800">Độc Giả Thân Thiết</div>
+              <div class="text-[10px] text-slate-400" id="badge-loyal-status">Mượn từ 3 cuốn</div>
+            </div>
+            <!-- Huy hiệu 3 -->
+            <div id="badge-master" class="p-3 bg-white rounded-2xl border border-slate-200 text-center space-y-1 shadow-2xs">
+              <div class="text-2xl">🥇</div>
+              <div class="font-bold text-xs text-slate-800">Bậc Thầy Tri Thức</div>
+              <div class="text-[10px] text-slate-400" id="badge-master-status">Tích lũy 150 điểm</div>
+            </div>
+            <!-- Huy hiệu 4 -->
+            <div id="badge-legend" class="p-3 bg-white rounded-2xl border border-slate-200 text-center space-y-1 shadow-2xs">
+              <div class="text-2xl">👑</div>
+              <div class="font-bold text-xs text-slate-800">Đại Sứ Thư Viện</div>
+              <div class="text-[10px] text-slate-400" id="badge-legend-status">Tích lũy 300 điểm</div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Cột 3: Đổi Đặc Quyền -->
+        <div class="bg-white p-4 sm:p-5 rounded-2xl border border-purple-200 shadow-2xs space-y-3 flex flex-col justify-between">
+          <div>
+            <div class="flex items-center justify-between">
+              <span class="text-xs font-bold text-purple-700 bg-purple-50 px-2.5 py-1 rounded-lg border border-purple-200">
+                <i class="fa-solid fa-gift mr-1"></i> Đặc Quyền VIP
+              </span>
+              <span class="text-xs font-black text-amber-600">200 Điểm</span>
+            </div>
+            <h5 class="font-extrabold text-slate-800 text-sm mt-2">Tăng Giới Hạn Mượn Lên 5 Quyển</h5>
+            <p class="text-[11px] text-slate-500 mt-1 leading-relaxed">
+              Mở rộng tối đa số lượng sách được phép mượn cùng một lúc từ 3 lên 5 quyển sách.
+            </p>
+          </div>
+
+          <div id="perkActionContainer" class="pt-2">
+            <button id="btnRedeemPerk" type="button" 
+                    class="w-full py-2.5 px-4 bg-gradient-to-r from-purple-600 to-indigo-600 hover:from-purple-700 hover:to-indigo-700 text-white font-bold text-xs rounded-xl shadow-md shadow-purple-200 transition flex items-center justify-center gap-1.5 cursor-pointer">
+              <i class="fa-solid fa-unlock-keyhole"></i> Đổi 200 Điểm Mở Rộng
+            </button>
+          </div>
+        </div>
+
+      </div>
+    </div>
+
+    <!-- Sách Đang Mượn Section -->
+    <div class="space-y-4">
+      <div class="flex items-center justify-between">
+        <div>
+          <h3 class="text-lg font-bold text-slate-800 flex items-center gap-2">
+            <i class="fa-solid fa-book-open-reader text-indigo-600"></i> Sách Đang Mượn Hiện Tại
+          </h3>
+          <p class="text-xs text-slate-400">Các cuốn sách bạn chưa hoàn trả cho thư viện</p>
+        </div>
+        <a href="index.html" class="px-3.5 py-1.5 text-xs font-bold text-indigo-600 bg-indigo-50 hover:bg-indigo-100 rounded-xl transition border border-indigo-100 flex items-center gap-1.5">
+          <i class="fa-solid fa-plus"></i> Mượn Thêm Sách Mới
+        </a>
+      </div>
+
+      <!-- Danh sách sách đang mượn -->
+      <div id="activeLoansList" class="space-y-3">
+        <!-- Render qua JS -->
+      </div>
+
+      <!-- Thông báo khi không có sách đang mượn -->
+      <div id="emptyActiveNotice" class="hidden glass-panel p-10 rounded-2xl border border-slate-200/80 text-center space-y-3">
+        <div class="w-12 h-12 rounded-2xl bg-indigo-50 text-indigo-500 flex items-center justify-center mx-auto text-xl">
+          <i class="fa-solid fa-bookmark"></i>
+        </div>
+        <h4 class="font-bold text-slate-700 text-sm">Bạn hiện không mượn cuốn sách nào</h4>
+        <p class="text-xs text-slate-400 max-w-sm mx-auto">Hãy ghé thăm danh mục sách để tìm những cuốn sách thú vị và mở rộng tri thức của mình nhé!</p>
+        <a href="index.html" class="inline-block px-4 py-2 text-xs font-bold text-white bg-indigo-600 hover:bg-indigo-700 rounded-xl shadow-xs transition">
+          Khám Phá Sách Ngay
+        </a>
+      </div>
+    </div>
+
+    <!-- Lịch Sử Các Sách Đã Trả Section -->
+    <div class="space-y-4 pt-6 border-t border-slate-200">
+      <div>
+        <h3 class="text-lg font-bold text-slate-800 flex items-center gap-2">
+          <i class="fa-solid fa-clock-rotate-left text-slate-500"></i> Lịch Sử Hoàn Trả Sách
+        </h3>
+        <p class="text-xs text-slate-400">Danh sách các cuốn sách bạn đã từng mượn và hoàn trả thành công</p>
+      </div>
+
+      <div id="returnedLoansList" class="glass-panel rounded-2xl border border-slate-200/80 overflow-hidden shadow-xs">
+        <!-- Render qua JS -->
+      </div>
+
+      <div id="emptyReturnedNotice" class="hidden glass-panel p-8 rounded-2xl border border-slate-200/80 text-center text-xs text-slate-400">
+        Bạn chưa có lịch sử mượn trả sách nào trước đây.
+      </div>
+    </div>
+
+  </main>
+
+  <!-- Footer -->
+  <footer class="bg-white border-t border-slate-200 py-6 px-6 text-center text-xs text-slate-400 mt-12">
+    Hệ thống Quản lý Thư viện LibMaster &bull; Node.js & SQLite
+  </footer>
+
+  <script src="js/main.js"></script>
+  <script src="js/profile.js"></script>
+  <script src="js/chatbot.js"></script>
+</body>
+</html>

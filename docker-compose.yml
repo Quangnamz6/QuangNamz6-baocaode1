@@ -1,0 +1,215 @@
+# ==============================================================================
+# HỆ THỐNG QUẢN LÝ THƯ VIỆN LIBMASTER - DOCKER COMPOSE
+# Môn: Triển khai và Quản trị Hệ thống Phần mềm (Đề 1)
+# ==============================================================================
+
+version: '3.8'
+
+services:
+  # ----------------------------------------------------------------------------
+  # 1. LibMaster Web Application (Node.js) - Security Hardened (Non-root user)
+  # ----------------------------------------------------------------------------
+  app:
+    build:
+      context: ./library-management
+      dockerfile: Dockerfile
+    container_name: libmaster-app
+    restart: unless-stopped
+    # HARDENING: Chạy container dưới danh tính Non-root User (UID:GID 1000:1000)
+    user: "1000:1000"
+    security_opt:
+      - no-new-privileges:true
+    environment:
+      - PORT=3000
+      - NODE_ENV=production
+      - JWT_SECRET=libmaster_jwt_secret_super_key_2026
+      - DB_HOST=db
+      - DB_PORT=5432
+      - DB_NAME=libmaster_db
+      - DB_USER=libmaster_admin
+      - DB_PASSWORD=LibMaster@SecurePass2026!
+    # Hardening: Phân vùng mạng (Nằm trên frontend-net để nhận proxy từ Nginx và backend-net để kết nối DB, Prometheus)
+    networks:
+      - frontend-net
+      - backend-net
+    depends_on:
+      db:
+        condition: service_healthy
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:3000/api/health"]
+      interval: 30s
+      timeout: 5s
+      retries: 3
+      start_period: 15s
+
+  # ----------------------------------------------------------------------------
+  # 2. Database: PostgreSQL 15 - Mật khẩu mạnh, cô lập trong backend-net
+  # ----------------------------------------------------------------------------
+  db:
+    image: postgres:15-alpine
+    container_name: libmaster-db
+    restart: unless-stopped
+    environment:
+      POSTGRES_DB: libmaster_db
+      POSTGRES_USER: libmaster_admin
+      POSTGRES_PASSWORD: LibMaster@SecurePass2026!
+      PGDATA: /var/lib/postgresql/data/pgdata
+    volumes:
+      - pgdata:/var/lib/postgresql/data
+    # HARDENING: Hoàn toàn cô lập trong backend-net, KHÔNG mở cổng ra ngoài Internet/Host
+    networks:
+      - backend-net
+    security_opt:
+      - no-new-privileges:true
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U $$POSTGRES_USER -d $$POSTGRES_DB"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+      start_period: 10s
+
+  # ----------------------------------------------------------------------------
+  # 3. Nginx Reverse Proxy - Tích hợp đầy đủ Security Headers (Cổng vào duy nhất)
+  # ----------------------------------------------------------------------------
+  nginx:
+    image: nginx:alpine
+    container_name: libmaster-nginx
+    restart: unless-stopped
+    ports:
+      - "80:80"
+    volumes:
+      - ./nginx/default.conf:/etc/nginx/conf.d/default.conf:ro
+    # HARDENING: Chỉ nằm trên frontend-net
+    networks:
+      - frontend-net
+    security_opt:
+      - no-new-privileges:true
+    depends_on:
+      - app
+
+  # ----------------------------------------------------------------------------
+  # 4. Grafana - Trực quan hóa Metrics từ Prometheus và Logs từ Loki
+  # ----------------------------------------------------------------------------
+  grafana:
+    image: grafana/grafana:latest
+    container_name: libmaster-grafana
+    restart: unless-stopped
+    environment:
+      GF_SECURITY_ADMIN_USER: admin
+      GF_SECURITY_ADMIN_PASSWORD: Grafana@SecurePass2026!
+      GF_USERS_ALLOW_SIGN_UP: "false"
+    ports:
+      - "3001:3000"
+    volumes:
+      - grafana_data:/var/lib/grafana
+      - ./grafana/provisioning:/etc/grafana/provisioning:ro
+    networks:
+      - frontend-net
+    depends_on:
+      - prometheus
+      - loki
+
+  # ----------------------------------------------------------------------------
+  # 5. Prometheus - Thu thập metrics từ cAdvisor và LibMaster App
+  # ----------------------------------------------------------------------------
+  prometheus:
+    image: prom/prometheus:v2.45.0
+    container_name: libmaster-prometheus
+    restart: unless-stopped
+    command:
+      - "--config.file=/etc/prometheus/prometheus.yml"
+      - "--storage.tsdb.path=/prometheus"
+      - "--web.console.libraries=/usr/share/prometheus/console_libraries"
+      - "--web.console.templates=/usr/share/prometheus/consoles"
+      - "--web.enable-lifecycle"
+    ports:
+      - "9090:9090"
+    volumes:
+      - ./prometheus/prometheus.yml:/etc/prometheus/prometheus.yml:ro
+      - prometheus_data:/prometheus
+    networks:
+      - backend-net
+    depends_on:
+      - cadvisor
+      - app
+
+  # ----------------------------------------------------------------------------
+  # 6. cAdvisor - Thu thập số liệu hiệu năng tài nguyên (CPU, RAM, I/O) từ Containers
+  # ----------------------------------------------------------------------------
+  cadvisor:
+    image: gcr.io/cadvisor/cadvisor:v0.49.1
+    container_name: libmaster-cadvisor
+    restart: unless-stopped
+    privileged: true
+    volumes:
+      - /:/rootfs:ro
+      - /var/run:/var/run:ro
+      - /sys:/sys:ro
+      - /var/lib/docker/:/var/lib/docker:ro
+      - /dev/disk/:/dev/disk:ro
+    ports:
+      - "8080:8080"
+    networks:
+      - backend-net
+
+  # ----------------------------------------------------------------------------
+  # 7. Loki - Hệ thống lưu trữ và quản lý tập trung Log
+  # ----------------------------------------------------------------------------
+  loki:
+    image: grafana/loki:2.9.2
+    container_name: libmaster-loki
+    restart: unless-stopped
+    ports:
+      - "3100:3100"
+    command: -config.file=/etc/loki/local-config.yaml
+    volumes:
+      - ./loki/loki-config.yml:/etc/loki/local-config.yaml:ro
+      - loki_data:/loki
+    networks:
+      - backend-net
+
+  # ----------------------------------------------------------------------------
+  # 8. Promtail - Thu thập log từ Docker Containers và đẩy về Loki
+  # ----------------------------------------------------------------------------
+  promtail:
+    image: grafana/promtail:2.9.2
+    container_name: libmaster-promtail
+    restart: unless-stopped
+    command: -config.file=/etc/promtail/config.yml
+    volumes:
+      - ./promtail/promtail-config.yml:/etc/promtail/config.yml:ro
+      - /var/log:/var/log:ro
+      - /var/lib/docker/containers:/var/lib/docker/containers:ro
+      - /var/run/docker.sock:/var/run/docker.sock:ro
+    networks:
+      - backend-net
+    depends_on:
+      - loki
+
+# ==============================================================================
+# PHÂN VÙNG MẠNG (NETWORK ISOLATION & HARDENING)
+# ==============================================================================
+networks:
+  frontend-net:
+    driver: bridge
+    name: libmaster-frontend-net
+  backend-net:
+    driver: bridge
+    name: libmaster-backend-net
+
+# ==============================================================================
+# LƯU TRỮ DỮ LIỆU BỀN VỮNG (PERSISTENT VOLUMES)
+# ==============================================================================
+volumes:
+  pgdata:
+    driver: local
+    name: libmaster-pgdata
+  prometheus_data:
+    driver: local
+    name: libmaster-prometheus-data
+  grafana_data:
+    driver: local
+    name: libmaster-grafana-data
+  loki_data:
+    driver: local
+    name: libmaster-loki-data

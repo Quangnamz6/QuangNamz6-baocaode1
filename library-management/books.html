@@ -1,0 +1,276 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Quản Lý Sách - Hệ Thống Thư Viện</title>
+  <!-- Tailwind CSS -->
+  <script src="https://cdn.tailwindcss.com"></script>
+  <!-- Font Awesome -->
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+  <!-- SweetAlert2 -->
+  <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+  <!-- Custom CSS -->
+  <link rel="stylesheet" href="css/style.css">
+</head>
+<body class="bg-slate-50 text-slate-800 min-h-screen flex flex-col md:flex-row">
+
+  <!-- ==================== SIDEBAR ==================== -->
+  <aside id="sidebar" class="w-full md:w-64 bg-white border-r border-slate-200 flex-shrink-0 flex flex-col z-30 transition-all duration-300">
+    <div class="h-16 flex items-center justify-between px-6 border-b border-slate-100">
+      <a href="index.html" class="flex items-center gap-3">
+        <div class="w-10 h-10 rounded-xl bg-gradient-to-tr from-indigo-600 to-blue-500 flex items-center justify-center text-white shadow-md shadow-indigo-100">
+          <i class="fa-solid fa-book-bookmark text-lg"></i>
+        </div>
+        <div>
+          <h1 class="font-bold text-slate-800 text-base leading-tight">LibMaster</h1>
+          <p class="text-[11px] text-slate-400 font-medium">Hệ thống Thư viện</p>
+        </div>
+      </a>
+      <button id="mobileMenuBtn" class="md:hidden text-slate-500 hover:text-slate-800 p-2">
+        <i class="fa-solid fa-bars text-lg"></i>
+      </button>
+    </div>
+
+    <!-- Menu Links -->
+    <div id="sidebarMenu" class="hidden md:flex flex-col flex-1 p-4 space-y-1.5 overflow-y-auto">
+      <div class="text-[11px] font-bold text-slate-400 uppercase tracking-wider px-3 mb-2">Quản trị viên</div>
+      
+      <a href="index.html" class="nav-link">
+        <i class="fa-solid fa-chart-pie w-5 text-center text-lg"></i>
+        <span>Tổng quan</span>
+      </a>
+
+      <a href="books.html" class="nav-link active">
+        <i class="fa-solid fa-book w-5 text-center text-lg"></i>
+        <span>Quản lý Sách</span>
+      </a>
+
+      <a href="borrowers.html" class="nav-link">
+        <i class="fa-solid fa-users w-5 text-center text-lg"></i>
+        <span>Quản lý Độc giả</span>
+      </a>
+
+      <a href="transactions.html" class="nav-link">
+        <i class="fa-solid fa-arrow-right-arrow-left w-5 text-center text-lg"></i>
+        <span>Mượn & Trả sách</span>
+      </a>
+
+      <div class="pt-6 mt-4 border-t border-slate-100">
+        <div class="text-[11px] font-bold text-slate-400 uppercase tracking-wider px-3 mb-2">Giao diện Độc giả</div>
+        <a href="user-catalog.html" class="nav-link text-indigo-600 bg-indigo-50/60 hover:bg-indigo-100/70" target="_blank">
+          <i class="fa-solid fa-compass w-5 text-center text-lg text-indigo-600"></i>
+          <span class="font-semibold">Tra cứu Sách (Khách)</span>
+          <i class="fa-solid fa-arrow-up-right-from-square ml-auto text-xs opacity-70"></i>
+        </a>
+      </div>
+    </div>
+  </aside>
+
+  <!-- ==================== MAIN CONTENT ==================== -->
+  <main class="flex-1 flex flex-col min-w-0 overflow-y-auto">
+    <!-- Top Header -->
+    <header class="h-16 bg-white border-b border-slate-200 flex items-center justify-between px-6 sticky top-0 z-20">
+      <div>
+        <h2 class="text-lg font-bold text-slate-800">Quản Lý Kho Sách</h2>
+        <p class="text-xs text-slate-400">Danh mục, thêm mới, điều chỉnh và phân loại sách</p>
+      </div>
+
+      <div class="flex items-center gap-3">
+        <button id="btnOpenAddModal" class="inline-flex items-center gap-2 px-4 py-2 text-xs font-semibold text-white bg-indigo-600 hover:bg-indigo-700 rounded-xl shadow-sm transition">
+          <i class="fa-solid fa-plus"></i> Thêm Sách Mới
+        </button>
+      </div>
+    </header>
+
+    <!-- Page Body -->
+    <div class="p-6 max-w-7xl mx-auto w-full space-y-5">
+      
+      <!-- Toolbar: Tìm kiếm & Lọc -->
+      <div class="glass-panel p-4 rounded-2xl border border-slate-200/80 shadow-sm flex flex-col md:flex-row gap-3 items-stretch md:items-center justify-between">
+        <!-- Search bar -->
+        <div class="relative flex-1">
+          <i class="fa-solid fa-magnifying-glass absolute left-3.5 top-1/2 -translate-y-1/2 text-slate-400 text-sm"></i>
+          <input type="text" id="searchBookInput" placeholder="Tìm theo tên sách, tác giả, mã ISBN..." 
+                 class="w-full pl-10 pr-4 py-2 text-sm bg-slate-50 border border-slate-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-indigo-500/20 focus:border-indigo-500 transition">
+        </div>
+
+        <!-- Dropdowns lọc -->
+        <div class="flex items-center gap-3">
+          <select id="categoryFilter" class="text-xs bg-slate-50 border border-slate-200 rounded-xl px-3 py-2 text-slate-700 focus:outline-none focus:border-indigo-500 font-medium">
+            <option value="all">Tất cả thể loại</option>
+          </select>
+
+          <select id="availabilityFilter" class="text-xs bg-slate-50 border border-slate-200 rounded-xl px-3 py-2 text-slate-700 focus:outline-none focus:border-indigo-500 font-medium">
+            <option value="all">Tất cả tình trạng</option>
+            <option value="available">Còn sách trong kho</option>
+            <option value="out">Đã hết sách</option>
+          </select>
+
+          <span id="totalBooksCount" class="text-xs font-bold text-indigo-700 bg-indigo-50 px-3 py-2 rounded-xl whitespace-nowrap border border-indigo-100">
+            0 đầu sách
+          </span>
+        </div>
+      </div>
+
+      <!-- Bảng Danh Sách Sách -->
+      <div class="glass-panel rounded-2xl border border-slate-200/80 shadow-sm overflow-hidden">
+        <div class="overflow-x-auto">
+          <table class="w-full text-left modern-table">
+            <thead>
+              <tr>
+                <th class="w-20">Mã</th>
+                <th>Sách & Tiêu Đề</th>
+                <th>Tác Giả</th>
+                <th>Thể Loại</th>
+                <th>Năm XB</th>
+                <th>Kho Sách</th>
+                <th class="text-right">Thao Tác</th>
+              </tr>
+            </thead>
+            <tbody id="booksTableBody">
+              <!-- Render qua js/books.js -->
+            </tbody>
+          </table>
+        </div>
+
+        <!-- Phân trang -->
+        <div class="p-4 border-t border-slate-100 flex items-center justify-between">
+          <div class="text-xs text-slate-400">Hiển thị mỗi trang 6 đầu sách</div>
+          <div id="paginationContainer" class="flex items-center gap-1.5">
+            <!-- Nút trang render qua JS -->
+          </div>
+        </div>
+      </div>
+
+    </div>
+  </main>
+
+  <!-- ==================== MODAL THÊM / SỬA SÁCH ==================== -->
+  <div id="bookModal" class="fixed inset-0 bg-slate-900/50 backdrop-blur-xs z-50 hidden items-center justify-center p-4">
+    <div class="bg-white rounded-2xl max-w-2xl w-full p-6 shadow-2xl border border-slate-100 animate-fade-in max-h-[90vh] overflow-y-auto">
+      <div class="flex items-center justify-between border-b border-slate-100 pb-3 mb-4">
+        <h3 id="bookModalTitle" class="text-lg font-bold text-slate-800">Thêm Sách Mới</h3>
+        <button id="modalCloseBtn" class="text-slate-400 hover:text-slate-600 p-1.5 rounded-lg hover:bg-slate-100 transition">
+          <i class="fa-solid fa-xmark text-lg"></i>
+        </button>
+      </div>
+
+      <form id="bookForm" class="space-y-4">
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+          <!-- Tên sách -->
+          <div class="md:col-span-2">
+            <label class="block text-xs font-bold text-slate-700 uppercase tracking-wider mb-1">Tên cuốn sách <span class="text-rose-500">*</span></label>
+            <input type="text" id="bookTitle" required placeholder="Ví dụ: Nhà Giả Kim"
+                   class="w-full text-sm px-3.5 py-2 bg-slate-50 border border-slate-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-indigo-500/20 focus:border-indigo-500">
+          </div>
+
+          <!-- Tác giả -->
+          <div>
+            <label class="block text-xs font-bold text-slate-700 uppercase tracking-wider mb-1">Tác giả <span class="text-rose-500">*</span></label>
+            <input type="text" id="bookAuthor" required placeholder="Ví dụ: Paulo Coelho"
+                   class="w-full text-sm px-3.5 py-2 bg-slate-50 border border-slate-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-indigo-500/20 focus:border-indigo-500">
+          </div>
+
+          <!-- ISBN -->
+          <div>
+            <label class="block text-xs font-bold text-slate-700 uppercase tracking-wider mb-1">Mã ISBN</label>
+            <input type="text" id="bookIsbn" placeholder="Ví dụ: 978-604-2-08560-1"
+                   class="w-full text-sm px-3.5 py-2 bg-slate-50 border border-slate-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-indigo-500/20 focus:border-indigo-500">
+          </div>
+
+          <!-- Thể loại -->
+          <div>
+            <label class="block text-xs font-bold text-slate-700 uppercase tracking-wider mb-1">Thể loại</label>
+            <select id="bookCategory" class="w-full text-sm px-3.5 py-2 bg-slate-50 border border-slate-200 rounded-xl focus:outline-none focus:border-indigo-500">
+              <option value="Văn học">Văn học</option>
+              <option value="Kỹ năng sống">Kỹ năng sống</option>
+              <option value="Công nghệ thông tin">Công nghệ thông tin</option>
+              <option value="Lịch sử - Xã hội">Lịch sử - Xã hội</option>
+              <option value="Tâm lý học">Tâm lý học</option>
+              <option value="Kinh tế - Kinh doanh">Kinh tế - Kinh doanh</option>
+              <option value="Khoa học kỹ thuật">Khoa học kỹ thuật</option>
+            </select>
+          </div>
+
+          <!-- Năm xuất bản -->
+          <div>
+            <label class="block text-xs font-bold text-slate-700 uppercase tracking-wider mb-1">Năm xuất bản</label>
+            <input type="number" id="bookYear" min="1000" max="2030"
+                   class="w-full text-sm px-3.5 py-2 bg-slate-50 border border-slate-200 rounded-xl focus:outline-none focus:border-indigo-500">
+          </div>
+
+          <!-- Số lượng kho -->
+          <div>
+            <label class="block text-xs font-bold text-slate-700 uppercase tracking-wider mb-1">Số lượng nhập kho <span class="text-rose-500">*</span></label>
+            <input type="number" id="bookQuantity" min="1" max="1000" required
+                   class="w-full text-sm px-3.5 py-2 bg-slate-50 border border-slate-200 rounded-xl focus:outline-none focus:border-indigo-500">
+          </div>
+
+          <!-- Link ảnh bìa -->
+          <div>
+            <label class="block text-xs font-bold text-slate-700 uppercase tracking-wider mb-1">URL Ảnh bìa sách</label>
+            <input type="url" id="bookCoverUrl" placeholder="https://example.com/cover.jpg"
+                   class="w-full text-sm px-3.5 py-2 bg-slate-50 border border-slate-200 rounded-xl focus:outline-none focus:border-indigo-500">
+          </div>
+
+          <!-- Preview Ảnh Bìa -->
+          <div class="md:col-span-2 flex items-center gap-4 bg-slate-50 p-3 rounded-xl border border-slate-200/60">
+            <img id="coverPreview" src="" alt="Bìa sách" class="w-16 h-20 object-cover rounded shadow border border-slate-200 hidden">
+            <div class="text-xs text-slate-400">
+              <span class="font-semibold text-slate-600">Xem trước ảnh bìa:</span> Nhập URL hình ảnh trực tuyến để xem trước. Nếu để trống hệ thống sẽ dùng ảnh mặc định.
+            </div>
+          </div>
+
+          <!-- Mô tả tóm tắt -->
+          <div class="md:col-span-2">
+            <label class="block text-xs font-bold text-slate-700 uppercase tracking-wider mb-1">Mô tả tóm tắt nội dung</label>
+            <textarea id="bookDescription" rows="3" placeholder="Tóm tắt ngắn gọn nội dung cuốn sách..."
+                      class="w-full text-sm px-3.5 py-2 bg-slate-50 border border-slate-200 rounded-xl focus:outline-none focus:border-indigo-500"></textarea>
+          </div>
+        </div>
+
+        <!-- Buttons -->
+        <div class="flex justify-end gap-2.5 pt-4 border-t border-slate-100">
+          <button type="button" id="modalCancelBtn" class="px-4 py-2 text-xs font-semibold text-slate-600 bg-slate-100 hover:bg-slate-200 rounded-xl transition">
+            Hủy Bỏ
+          </button>
+          <button type="submit" class="px-5 py-2 text-xs font-bold text-white bg-indigo-600 hover:bg-indigo-700 rounded-xl shadow-sm transition">
+            <i class="fa-solid fa-floppy-disk mr-1"></i> Lưu Sách
+          </button>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <!-- ==================== MODAL CHI TIẾT SÁCH ==================== -->
+  <div id="bookDetailModal" class="fixed inset-0 bg-slate-900/50 backdrop-blur-xs z-50 hidden items-center justify-center p-4">
+    <div class="bg-white rounded-2xl max-w-2xl w-full p-6 shadow-2xl border border-slate-100 animate-fade-in relative max-h-[90vh] overflow-y-auto">
+      <div class="flex items-center justify-between border-b border-slate-100 pb-3 mb-4">
+        <h3 class="text-lg font-bold text-slate-800">Thông Tin Chi Tiết Sách</h3>
+        <button id="detailCloseBtn" class="text-slate-400 hover:text-slate-600 p-1.5 rounded-lg hover:bg-slate-100 transition">
+          <i class="fa-solid fa-xmark text-lg"></i>
+        </button>
+      </div>
+
+      <div id="detailModalContent">
+        <!-- Render qua JS -->
+      </div>
+    </div>
+  </div>
+
+  <!-- Scripts -->
+  <script src="js/app.js"></script>
+  <script src="js/books.js"></script>
+  <script>
+    // Toggle Mobile Menu
+    const mobileBtn = document.getElementById('mobileMenuBtn');
+    const sidebarMenu = document.getElementById('sidebarMenu');
+    if (mobileBtn && sidebarMenu) {
+      mobileBtn.addEventListener('click', () => {
+        sidebarMenu.classList.toggle('hidden');
+      });
+    }
+  </script>
+</body>
+</html>

@@ -1,0 +1,59 @@
+# ==============================================================================
+# Promtail Configuration cho LibMaster System
+# Thu thập log từ Docker Containers và chuyển tiếp đến Loki qua http://loki:3100/loki/api/v1/push
+# ==============================================================================
+
+server:
+  http_listen_port: 9080
+  grpc_listen_port: 0
+  log_level: info
+
+# Vị trí lưu offset đọc file log để không bị đọc lại từ đầu khi khởi động lại
+positions:
+  filename: /tmp/positions.yaml
+
+# Địa chỉ endpoint của Loki nhận log (qua mạng backend-net)
+clients:
+  - url: http://loki:3100/loki/api/v1/push
+    batchwait: 1s
+    batchsize: 1048576 # 1MB
+
+# Cấu hình các nguồn thu thập log
+scrape_configs:
+  # 1. Thu thập log trực tiếp từ Docker Containers
+  - job_name: docker_containers
+    static_configs:
+      - targets:
+          - localhost
+        labels:
+          job: docker
+          __path__: /var/lib/docker/containers/*/*-json.log
+
+    pipeline_stages:
+      # Phân tích cú pháp định dạng JSON mặc định của Docker daemon
+      - json:
+          expressions:
+            output: log
+            stream: stream
+            attrs: attrs
+            tag: tag
+            time: time
+      # Gán nhãn stream (stdout / stderr)
+      - labels:
+          stream:
+      # Chuẩn hóa mốc thời gian của log
+      - timestamp:
+          source: time
+          format: RFC3339Nano
+      # Đẩy nội dung log đã trích xuất ra output
+      - output:
+          source: output
+
+  # 2. Thu thập log hệ thống (nếu có)
+  - job_name: syslog
+    static_configs:
+      - targets:
+          - localhost
+        labels:
+          job: varlog
+          __path__: /var/log/*log

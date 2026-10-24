@@ -1,0 +1,563 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Thư Viện Trực Tuyến - Tra Cứu & Mượn Sách</title>
+  <!-- Tailwind CSS -->
+  <script src="https://cdn.tailwindcss.com"></script>
+  <!-- Font Awesome -->
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+  <!-- SweetAlert2 -->
+  <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+  <!-- Custom CSS -->
+  <link rel="stylesheet" href="css/style.css">
+</head>
+<body class="bg-slate-50 text-slate-800 min-h-screen flex flex-col">
+
+  <!-- ==================== PUBLIC HEADER ==================== -->
+  <header class="bg-white/80 backdrop-blur-md border-b border-slate-200 sticky top-0 z-30">
+    <div class="max-w-7xl mx-auto px-6 h-16 flex items-center justify-between">
+      <!-- Logo -->
+      <a href="user-catalog.html" class="flex items-center gap-3">
+        <div class="w-10 h-10 rounded-xl bg-gradient-to-tr from-indigo-600 to-blue-500 flex items-center justify-center text-white shadow-md shadow-indigo-100">
+          <i class="fa-solid fa-book-bookmark text-lg"></i>
+        </div>
+        <div>
+          <span class="font-bold text-slate-800 text-lg leading-tight block">LibMaster</span>
+          <span class="text-[11px] text-slate-400 font-medium">Cổng Tra Cứu Độc Giả</span>
+        </div>
+      </a>
+
+      <!-- Navigation & Action -->
+      <div class="flex items-center gap-3">
+        <button id="btnCheckHistory" class="px-3.5 py-2 text-xs font-semibold text-indigo-600 bg-indigo-50 hover:bg-indigo-100 rounded-xl transition flex items-center gap-1.5 border border-indigo-100">
+          <i class="fa-solid fa-clock-rotate-left"></i> Tra Cứu Thẻ & Lịch Sử
+        </button>
+
+        <a href="index.html" class="px-3.5 py-2 text-xs font-semibold text-slate-600 hover:text-slate-900 bg-slate-100 hover:bg-slate-200 rounded-xl transition flex items-center gap-1.5">
+          <i class="fa-solid fa-user-shield"></i> Trang Quản Trị
+        </a>
+      </div>
+    </div>
+  </header>
+
+  <!-- ==================== HERO SECTION ==================== -->
+  <section class="bg-gradient-to-b from-indigo-900 via-indigo-800 to-slate-900 text-white py-14 px-6 relative overflow-hidden">
+    <div class="max-w-4xl mx-auto text-center space-y-4 relative z-10">
+      <span class="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-semibold bg-white/10 text-indigo-200 backdrop-blur-xs border border-white/10">
+        <i class="fa-solid fa-sparkles text-amber-300"></i> Khám phá kho tàng tri thức
+      </span>
+      <h2 class="text-3xl sm:text-4xl md:text-5xl font-extrabold tracking-tight">
+        Tra Cứu & Đặt Mượn Sách Trực Tuyến
+      </h2>
+      <p class="text-sm sm:text-base text-indigo-200/90 max-w-2xl mx-auto font-light">
+        Tìm kiếm hàng ngàn đầu sách văn học, khoa học, kỹ năng và công nghệ. Đăng ký mượn trực tuyến nhanh chóng và thuận tiện.
+      </p>
+
+      <!-- Thanh tìm kiếm chính trong Hero -->
+      <div class="pt-4 max-w-2xl mx-auto">
+        <div class="bg-white p-2 rounded-2xl shadow-xl flex items-center gap-2 border border-white/20">
+          <div class="relative flex-1">
+            <i class="fa-solid fa-magnifying-glass absolute left-3.5 top-1/2 -translate-y-1/2 text-slate-400"></i>
+            <input type="text" id="heroSearchInput" placeholder="Nhập tên sách, tác giả hoặc thể loại cần tìm..." 
+                   class="w-full pl-10 pr-4 py-2.5 text-sm text-slate-800 focus:outline-none rounded-xl">
+          </div>
+          <button id="heroSearchBtn" class="px-5 py-2.5 bg-indigo-600 hover:bg-indigo-700 text-white font-semibold text-xs rounded-xl shadow transition">
+            Tìm Kiếm
+          </button>
+        </div>
+      </div>
+    </div>
+
+    <!-- Background decoration blobs -->
+    <div class="absolute -top-20 -left-20 w-80 h-80 bg-indigo-500/20 rounded-full blur-3xl pointer-events-none"></div>
+    <div class="absolute -bottom-20 -right-20 w-80 h-80 bg-blue-500/20 rounded-full blur-3xl pointer-events-none"></div>
+  </section>
+
+  <!-- ==================== CATALOG BODY ==================== -->
+  <main class="max-w-7xl mx-auto px-6 py-10 w-full flex-1 space-y-6">
+    
+    <!-- Bộ Lọc Thể Loại -->
+    <div class="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 border-b border-slate-200 pb-5">
+      <div>
+        <h3 class="text-xl font-bold text-slate-800">Danh Mục Sách</h3>
+        <p class="text-xs text-slate-500">Xem tình trạng sách còn trong kho và đặt mượn</p>
+      </div>
+
+      <!-- Category Filter Pills -->
+      <div class="flex flex-wrap gap-2" id="categoryPills">
+        <button data-cat="all" class="cat-pill active px-3.5 py-1.5 text-xs font-semibold rounded-full transition bg-indigo-600 text-white shadow-xs">
+          Tất cả
+        </button>
+        <!-- Thể loại render qua JS -->
+      </div>
+    </div>
+
+    <!-- Grid Sách -->
+    <div id="catalogGrid" class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6">
+      <!-- Render qua JS -->
+    </div>
+
+  </main>
+
+  <!-- ==================== FOOTER ==================== -->
+  <footer class="bg-white border-t border-slate-200 py-8 px-6 text-center text-xs text-slate-500">
+    <div class="max-w-7xl mx-auto flex flex-col sm:flex-row items-center justify-between gap-4">
+      <div class="flex items-center gap-2">
+        <div class="w-6 h-6 rounded-lg bg-indigo-600 flex items-center justify-center text-white text-xs font-bold">L</div>
+        <span class="font-bold text-slate-800">LibMaster</span> - Hệ Thống Quản Lý Thư Viện Hiện Đại
+      </div>
+      <div>
+        Được phát triển với HTML5, TailwindCSS & Vanilla JavaScript
+      </div>
+    </div>
+  </footer>
+
+  <!-- ==================== MODAL XEM CHI TIẾT & ĐẶT MƯỢN SÁCH ==================== -->
+  <div id="borrowModal" class="fixed inset-0 bg-slate-900/50 backdrop-blur-xs z-50 hidden items-center justify-center p-4">
+    <div class="bg-white rounded-2xl max-w-xl w-full p-6 shadow-2xl border border-slate-100 animate-fade-in relative max-h-[90vh] overflow-y-auto">
+      <div class="flex items-center justify-between border-b border-slate-100 pb-3 mb-4">
+        <h3 class="text-lg font-bold text-slate-800">Thông Tin Sách & Đăng Ký Mượn</h3>
+        <button id="modalCloseBtn" class="text-slate-400 hover:text-slate-600 p-1.5 rounded-lg hover:bg-slate-100 transition">
+          <i class="fa-solid fa-xmark text-lg"></i>
+        </button>
+      </div>
+
+      <div id="modalBookInfo" class="mb-5">
+        <!-- Render qua JS -->
+      </div>
+
+      <!-- Form đăng ký mượn online -->
+      <form id="borrowForm" class="space-y-4 pt-4 border-t border-slate-100">
+        <h4 class="text-xs font-bold uppercase tracking-wider text-indigo-700">Thông tin người mượn:</h4>
+        
+        <div>
+          <label class="block text-xs font-semibold text-slate-700 mb-1">Mã Thẻ Độc Giả hoặc Số Điện Thoại <span class="text-rose-500">*</span></label>
+          <div class="relative">
+            <input type="text" id="userIdentifyInput" required placeholder="Nhập Mã thẻ (VD: M001) hoặc Số ĐT (VD: 0912345678)"
+                   class="w-full text-sm px-3.5 py-2.5 bg-slate-50 border border-slate-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-indigo-500/20 focus:border-indigo-500">
+          </div>
+          <p class="text-[11px] text-slate-400 mt-1">Hệ thống sẽ tra cứu thẻ thành viên của bạn để cấp phiếu mượn tự động.</p>
+        </div>
+
+        <div>
+          <label class="block text-xs font-semibold text-slate-700 mb-1">Số ngày mượn mong muốn</label>
+          <select id="userBorrowDays" class="w-full text-sm px-3.5 py-2 bg-slate-50 border border-slate-200 rounded-xl focus:outline-none focus:border-indigo-500">
+            <option value="7">7 ngày</option>
+            <option value="14" selected>14 ngày (Tiêu chuẩn)</option>
+            <option value="21">21 ngày</option>
+          </select>
+        </div>
+
+        <div class="flex justify-end gap-2.5 pt-2">
+          <button type="button" id="modalCancelBtn" class="px-4 py-2 text-xs font-semibold text-slate-600 bg-slate-100 hover:bg-slate-200 rounded-xl transition">
+            Đóng
+          </button>
+          <button type="submit" id="btnSubmitBorrow" class="px-5 py-2 text-xs font-bold text-white bg-indigo-600 hover:bg-indigo-700 rounded-xl shadow-sm transition">
+            <i class="fa-solid fa-paper-plane mr-1"></i> Xác Nhận Đăng Ký Mượn
+          </button>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <!-- ==================== MODAL TRA CỨU LỊCH SỬ THẺ ĐỘC GIẢ ==================== -->
+  <div id="checkHistoryModal" class="fixed inset-0 bg-slate-900/50 backdrop-blur-xs z-50 hidden items-center justify-center p-4">
+    <div class="bg-white rounded-2xl max-w-2xl w-full p-6 shadow-2xl border border-slate-100 animate-fade-in relative max-h-[90vh] overflow-y-auto">
+      <div class="flex items-center justify-between border-b border-slate-100 pb-3 mb-4">
+        <h3 class="text-lg font-bold text-slate-800">Tra Cứu Lịch Sử Thẻ Độc Giả</h3>
+        <button id="historyCloseBtn" class="text-slate-400 hover:text-slate-600 p-1.5 rounded-lg hover:bg-slate-100 transition">
+          <i class="fa-solid fa-xmark text-lg"></i>
+        </button>
+      </div>
+
+      <div class="space-y-4">
+        <!-- Input tra cứu -->
+        <div class="flex gap-2">
+          <input type="text" id="historySearchInput" placeholder="Nhập Mã thẻ độc giả (VD: M001) hoặc Số ĐT (VD: 0912345678)..." 
+                 class="flex-1 text-sm px-3.5 py-2 bg-slate-50 border border-slate-200 rounded-xl focus:outline-none focus:border-indigo-500">
+          <button id="btnSearchMemberHistory" class="px-4 py-2 bg-indigo-600 hover:bg-indigo-700 text-white font-semibold text-xs rounded-xl transition">
+            Tra Cứu
+          </button>
+        </div>
+
+        <!-- Kết quả tra cứu -->
+        <div id="historyResultArea" class="py-4">
+          <div class="text-center py-8 text-slate-400">
+            <i class="fa-solid fa-address-card text-3xl mb-2 text-slate-300"></i>
+            <p class="text-xs">Vui lòng nhập Mã thẻ độc giả hoặc Số điện thoại để xem sách đang mượn và hạn trả.</p>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Scripts -->
+  <script src="js/app.js"></script>
+  <script>
+    document.addEventListener('DOMContentLoaded', () => {
+      let activeCategory = 'all';
+      let searchQuery = '';
+      let selectedBookForBorrow = null;
+
+      // DOM Elements
+      const catalogGrid = document.getElementById('catalogGrid');
+      const categoryPills = document.getElementById('categoryPills');
+      const heroSearchInput = document.getElementById('heroSearchInput');
+      const heroSearchBtn = document.getElementById('heroSearchBtn');
+
+      // Modal Đăng ký mượn
+      const borrowModal = document.getElementById('borrowModal');
+      const modalBookInfo = document.getElementById('modalBookInfo');
+      const borrowForm = document.getElementById('borrowForm');
+      const modalCloseBtn = document.getElementById('modalCloseBtn');
+      const modalCancelBtn = document.getElementById('modalCancelBtn');
+      const userIdentifyInput = document.getElementById('userIdentifyInput');
+      const userBorrowDays = document.getElementById('userBorrowDays');
+      const btnSubmitBorrow = document.getElementById('btnSubmitBorrow');
+
+      // Modal Lịch sử
+      const btnCheckHistory = document.getElementById('btnCheckHistory');
+      const checkHistoryModal = document.getElementById('checkHistoryModal');
+      const historyCloseBtn = document.getElementById('historyCloseBtn');
+      const historySearchInput = document.getElementById('historySearchInput');
+      const btnSearchMemberHistory = document.getElementById('btnSearchMemberHistory');
+      const historyResultArea = document.getElementById('historyResultArea');
+
+      // ==========================================
+      // KHỞI TẠO DANH MỤC THỂ LOẠI (PILLS)
+      // ==========================================
+      function initCategories() {
+        const books = db.getBooks();
+        const categories = Array.from(new Set(books.map(b => b.category).filter(Boolean)));
+
+        categoryPills.innerHTML = `
+          <button data-cat="all" class="cat-pill active px-3.5 py-1.5 text-xs font-semibold rounded-full transition bg-indigo-600 text-white shadow-xs">
+            Tất cả
+          </button>
+        `;
+
+        categories.forEach(cat => {
+          const btn = document.createElement('button');
+          btn.setAttribute('data-cat', cat);
+          btn.className = 'cat-pill px-3.5 py-1.5 text-xs font-semibold rounded-full transition bg-slate-100 text-slate-600 hover:bg-slate-200';
+          btn.textContent = cat;
+          categoryPills.appendChild(btn);
+        });
+
+        // Event listener cho pills
+        document.querySelectorAll('.cat-pill').forEach(btn => {
+          btn.addEventListener('click', () => {
+            document.querySelectorAll('.cat-pill').forEach(b => {
+              b.classList.remove('bg-indigo-600', 'text-white', 'shadow-xs');
+              b.classList.add('bg-slate-100', 'text-slate-600', 'hover:bg-slate-200');
+            });
+            btn.classList.remove('bg-slate-100', 'text-slate-600', 'hover:bg-slate-200');
+            btn.classList.add('bg-indigo-600', 'text-white', 'shadow-xs');
+
+            activeCategory = btn.getAttribute('data-cat');
+            renderCatalog();
+          });
+        });
+      }
+
+      // ==========================================
+      // RENDER DANH SÁCH SÁCH (CARD GRID)
+      // ==========================================
+      function renderCatalog() {
+        let books = db.getBooks();
+
+        // Lọc thể loại
+        if (activeCategory !== 'all') {
+          books = books.filter(b => b.category === activeCategory);
+        }
+
+        // Tìm kiếm
+        if (searchQuery.trim() !== '') {
+          const q = searchQuery.toLowerCase().trim();
+          books = books.filter(b =>
+            (b.title && b.title.toLowerCase().includes(q)) ||
+            (b.author && b.author.toLowerCase().includes(q)) ||
+            (b.category && b.category.toLowerCase().includes(q))
+          );
+        }
+
+        if (books.length === 0) {
+          catalogGrid.innerHTML = `
+            <div class="col-span-full py-16 text-center text-slate-400">
+              <i class="fa-solid fa-book-open text-4xl mb-3 text-slate-300"></i>
+              <p class="text-sm">Không tìm thấy cuốn sách nào phù hợp với yêu cầu tìm kiếm của bạn.</p>
+            </div>
+          `;
+          return;
+        }
+
+        catalogGrid.innerHTML = books.map(book => {
+          const fallbackImage = 'https://images.unsplash.com/photo-1544947950-fa07a98d237f?auto=format&fit=crop&q=80&w=600';
+          const isAvailable = book.availableQuantity > 0;
+
+          return `
+            <div class="book-card bg-white rounded-2xl border border-slate-200/80 overflow-hidden shadow-xs flex flex-col group">
+              <!-- Bìa sách -->
+              <div class="relative h-64 overflow-hidden bg-slate-100">
+                <img src="${book.coverUrl || fallbackImage}" alt="${book.title}"
+                     onerror="this.src='${fallbackImage}'"
+                     class="w-full h-full object-cover group-hover:scale-105 transition duration-500">
+                <div class="absolute top-3 left-3">
+                  <span class="text-[11px] font-bold px-2.5 py-1 rounded-full bg-slate-900/70 text-white backdrop-blur-xs">
+                    ${book.category}
+                  </span>
+                </div>
+                <div class="absolute top-3 right-3">
+                  ${isAvailable 
+                    ? `<span class="badge badge-success shadow-xs"><i class="fa-solid fa-circle-check mr-1 text-[9px]"></i>Còn ${book.availableQuantity} cuốn</span>`
+                    : `<span class="badge badge-danger shadow-xs"><i class="fa-solid fa-circle-xmark mr-1 text-[9px]"></i>Tạm hết</span>`}
+                </div>
+              </div>
+
+              <!-- Nội dung sách -->
+              <div class="p-5 flex-1 flex flex-col justify-between space-y-3">
+                <div>
+                  <h4 class="font-bold text-slate-800 text-base line-clamp-1 group-hover:text-indigo-600 transition" title="${book.title}">
+                    ${book.title}
+                  </h4>
+                  <p class="text-xs text-slate-500 font-medium mt-1">
+                    <i class="fa-solid fa-feather-pointed text-indigo-500 mr-1"></i>${book.author}
+                  </p>
+                  <p class="text-xs text-slate-400 mt-2 line-clamp-2 leading-relaxed">
+                    ${book.description || 'Chưa có mô tả ngắn cho cuốn sách này.'}
+                  </p>
+                </div>
+
+                <div class="pt-3 border-t border-slate-100 flex items-center justify-between">
+                  <span class="text-[11px] font-mono text-slate-400">Năm: ${book.publishYear || 'N/A'}</span>
+                  <button onclick="window.openBorrowModal('${book.id}')" 
+                          class="px-3.5 py-1.5 text-xs font-bold rounded-xl transition ${isAvailable ? 'bg-indigo-600 hover:bg-indigo-700 text-white shadow-xs' : 'bg-slate-100 text-slate-400 cursor-not-allowed'}"
+                          ${!isAvailable ? 'disabled' : ''}>
+                    ${isAvailable ? '<i class="fa-solid fa-book mr-1"></i> Mượn Sách' : 'Hết Sách'}
+                  </button>
+                </div>
+              </div>
+            </div>
+          `;
+        }).join('');
+      }
+
+      // Xử lý tìm kiếm
+      function executeSearch() {
+        searchQuery = heroSearchInput.value;
+        renderCatalog();
+        catalogGrid.scrollIntoView({ behavior: 'smooth' });
+      }
+
+      heroSearchBtn.addEventListener('click', executeSearch);
+      heroSearchInput.addEventListener('keypress', (e) => {
+        if (e.key === 'Enter') executeSearch();
+      });
+
+      // ==========================================
+      // MODAL ĐĂNG KÝ MƯỢN SÁCH ONLINE
+      // ==========================================
+      window.openBorrowModal = (bookId) => {
+        const book = db.getBookById(bookId);
+        if (!book) return;
+
+        selectedBookForBorrow = book;
+        const fallbackImage = 'https://images.unsplash.com/photo-1544947950-fa07a98d237f?auto=format&fit=crop&q=80&w=600';
+
+        modalBookInfo.innerHTML = `
+          <div class="flex items-center gap-4 bg-slate-50 p-3.5 rounded-xl border border-slate-200/80">
+            <img src="${book.coverUrl || fallbackImage}" class="w-16 h-22 object-cover rounded-lg shadow-sm border border-slate-200">
+            <div>
+              <span class="text-[10px] font-bold uppercase tracking-wider text-indigo-600 bg-indigo-50 px-2 py-0.5 rounded">${book.category}</span>
+              <h4 class="font-bold text-slate-800 text-base leading-snug mt-1">${book.title}</h4>
+              <p class="text-xs text-slate-500">Tác giả: <strong class="text-slate-700">${book.author}</strong></p>
+              <p class="text-xs text-emerald-600 font-semibold mt-1">
+                <i class="fa-solid fa-circle-check text-[10px] mr-1"></i>Số lượng còn: ${book.availableQuantity} cuốn
+              </p>
+            </div>
+          </div>
+        `;
+
+        borrowForm.reset();
+        borrowModal.classList.remove('hidden');
+        borrowModal.classList.add('flex');
+        userIdentifyInput.focus();
+      };
+
+      function closeBorrowModal() {
+        borrowModal.classList.add('hidden');
+        borrowModal.classList.remove('flex');
+        selectedBookForBorrow = null;
+      }
+
+      modalCloseBtn.addEventListener('click', closeBorrowModal);
+      modalCancelBtn.addEventListener('click', closeBorrowModal);
+
+      // Submit đăng ký mượn
+      borrowForm.addEventListener('submit', (e) => {
+        e.preventDefault();
+        if (!selectedBookForBorrow) return;
+
+        const identifier = userIdentifyInput.value.trim().toLowerCase();
+        const days = parseInt(userBorrowDays.value, 10) || 14;
+
+        // Tìm độc giả theo mã thẻ hoặc số điện thoại
+        const members = db.getMembers();
+        const member = members.find(m => 
+          m.id.toLowerCase() === identifier || 
+          m.phone.toLowerCase() === identifier
+        );
+
+        if (!member) {
+          Notify.error('Không tìm thấy độc giả', 'Mã thẻ hoặc số điện thoại này chưa được đăng ký trong hệ thống thư viện! Vui lòng liên hệ thủ thư tại quầy để mở thẻ.');
+          return;
+        }
+
+        if (member.status === 'locked') {
+          Notify.error('Tài khoản bị khóa', 'Tài khoản độc giả của bạn hiện đang bị khóa. Vui lòng liên hệ thủ thư để được mở khóa!');
+          return;
+        }
+
+        // Tính ngày trả
+        const today = new Date();
+        const dueDate = new Date();
+        dueDate.setDate(today.getDate() + days);
+
+        try {
+          db.createLoan({
+            memberId: member.id,
+            bookId: selectedBookForBorrow.id,
+            borrowDate: today.toISOString().split('T')[0],
+            dueDate: dueDate.toISOString().split('T')[0],
+            note: 'Đăng ký mượn trực tuyến'
+          });
+
+          Notify.success(
+            'Đăng ký mượn sách thành công!',
+            `Độc giả ${member.name} đã mượn thành công cuốn "${selectedBookForBorrow.title}".\nHạn hoàn trả sách: ${db.formatDate(dueDate.toISOString().split('T')[0])}`
+          );
+
+          closeBorrowModal();
+          renderCatalog();
+        } catch (err) {
+          Notify.error('Đăng ký thất bại', err.message);
+        }
+      });
+
+      // ==========================================
+      // MODAL TRA CỨU LỊCH SỬ THẺ ĐỘC GIẢ
+      // ==========================================
+      btnCheckHistory.addEventListener('click', () => {
+        checkHistoryModal.classList.remove('hidden');
+        checkHistoryModal.classList.add('flex');
+        historySearchInput.value = '';
+        historyResultArea.innerHTML = `
+          <div class="text-center py-8 text-slate-400">
+            <i class="fa-solid fa-address-card text-3xl mb-2 text-slate-300"></i>
+            <p class="text-xs">Vui lòng nhập Mã thẻ độc giả hoặc Số điện thoại để xem sách đang mượn và hạn trả.</p>
+          </div>
+        `;
+        historySearchInput.focus();
+      });
+
+      historyCloseBtn.addEventListener('click', () => {
+        checkHistoryModal.classList.add('hidden');
+        checkHistoryModal.classList.remove('flex');
+      });
+
+      function executeHistorySearch() {
+        const query = historySearchInput.value.trim().toLowerCase();
+        if (!query) {
+          Notify.toast('Vui lòng nhập Mã thẻ hoặc Số điện thoại!', 'warning');
+          return;
+        }
+
+        const members = db.getMembers();
+        const member = members.find(m => 
+          m.id.toLowerCase() === query || 
+          m.phone.toLowerCase() === query
+        );
+
+        if (!member) {
+          historyResultArea.innerHTML = `
+            <div class="text-center py-8 text-rose-500 bg-rose-50/50 rounded-xl border border-rose-100">
+              <i class="fa-solid fa-circle-exclamation text-3xl mb-2"></i>
+              <p class="text-sm font-semibold">Không tìm thấy độc giả khớp với "${query}"</p>
+              <p class="text-xs text-rose-400 mt-1">Vui lòng kiểm tra lại mã thẻ hoặc số điện thoại.</p>
+            </div>
+          `;
+          return;
+        }
+
+        db.refreshLoanStatuses();
+        const loans = db.getLoans().filter(l => l.memberId === member.id);
+        const activeLoans = loans.filter(l => l.status !== 'returned');
+
+        historyResultArea.innerHTML = `
+          <div class="space-y-4">
+            <!-- Thông tin chủ thẻ -->
+            <div class="bg-indigo-50 border border-indigo-100 rounded-xl p-4 flex items-center justify-between">
+              <div>
+                <h4 class="font-bold text-slate-800 text-sm">${member.name} (#${member.id})</h4>
+                <p class="text-xs text-slate-500"><i class="fa-solid fa-phone mr-1"></i>${member.phone} | <i class="fa-solid fa-calendar mr-1"></i>Gia nhập: ${db.formatDate(member.joinDate)}</p>
+              </div>
+              <span class="badge ${member.status === 'active' ? 'badge-success' : 'badge-danger'}">
+                ${member.status === 'active' ? 'Đang hoạt động' : 'Tài khoản bị khóa'}
+              </span>
+            </div>
+
+            <!-- Danh sách sách đang mượn -->
+            <div>
+              <h5 class="text-xs font-bold uppercase tracking-wider text-slate-400 mb-2">
+                Sách Đang Mượn (${activeLoans.length} cuốn)
+              </h5>
+              ${activeLoans.length === 0 ? `
+                <div class="p-4 bg-slate-50 rounded-xl text-center text-xs text-slate-400">
+                  Bạn hiện không có cuốn sách nào đang mượn.
+                </div>
+              ` : `
+                <div class="space-y-2">
+                  ${activeLoans.map(l => {
+                    const book = db.getBookById(l.bookId) || { title: 'Sách đã xóa' };
+                    const isOverdue = l.status === 'overdue';
+
+                    return `
+                      <div class="p-3 bg-white border ${isOverdue ? 'border-rose-200 bg-rose-50/30' : 'border-slate-200'} rounded-xl flex items-center justify-between text-xs">
+                        <div>
+                          <div class="font-bold text-slate-800">${book.title}</div>
+                          <div class="text-[11px] text-slate-400">Mã phiếu: ${l.id} | Ngày mượn: ${db.formatDate(l.borrowDate)}</div>
+                        </div>
+                        <div class="text-right">
+                          <div class="font-bold ${isOverdue ? 'text-rose-600' : 'text-indigo-600'}">
+                            Hạn trả: ${db.formatDate(l.dueDate)}
+                          </div>
+                          ${isOverdue ? `
+                            <span class="text-[10px] font-bold text-rose-500">Quá hạn! Phạt: ${db.formatCurrency(l.fineAmount)}</span>
+                          ` : `
+                            <span class="text-[10px] text-emerald-600 font-medium">Trong hạn</span>
+                          `}
+                        </div>
+                      </div>
+                    `;
+                  }).join('')}
+                </div>
+              `}
+            </div>
+          </div>
+        `;
+      }
+
+      btnSearchMemberHistory.addEventListener('click', executeHistorySearch);
+      historySearchInput.addEventListener('keypress', (e) => {
+        if (e.key === 'Enter') executeHistorySearch();
+      });
+
+      // Khởi tạo
+      initCategories();
+      renderCatalog();
+    });
+  </script>
+</body>
+</html>
